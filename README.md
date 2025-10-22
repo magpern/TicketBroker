@@ -103,8 +103,11 @@ flask db current
 # Run the setup script
 setup.bat
 
-# Start development server
-dev.bat
+# Start development server (no warnings)
+start_dev.bat
+
+# Start production server (Gunicorn)
+start_production.bat
 ```
 
 **For Linux/Mac:**
@@ -117,7 +120,28 @@ chmod +x setup.sh dev.sh
 
 # Start development server
 ./dev.sh
+
+# Start production server
+python start_production.py
 ```
+
+### Production Deployment
+
+**Using Gunicorn (Recommended):**
+```bash
+# Start production server
+python start_production.py
+
+# Or directly with Gunicorn
+gunicorn -c gunicorn.conf.py run:app
+```
+
+**Configuration:**
+- **Workers**: 4 processes
+- **Port**: 5001
+- **Logs**: `logs/access.log`, `logs/error.log`
+- **Timeout**: 30 seconds
+- **Max Requests**: 1000 per worker
 
 ### Option 2: Manual Setup
 

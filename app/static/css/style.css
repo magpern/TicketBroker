@@ -66,32 +66,6 @@ body::before {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.nav {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-}
-
-.nav-link {
-    text-decoration: none;
-    color: #dc2626;
-    font-weight: 500;
-    padding: 10px 20px;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-    background: rgba(220, 38, 38, 0.1);
-}
-
-.nav-link:hover {
-    background: #dc2626;
-    color: white;
-    transform: translateY(-2px);
-}
-
-.admin-link {
-    background: rgba(220, 38, 38, 0.2);
-    font-weight: 600;
-}
 
 /* Main content */
 .main {
@@ -279,8 +253,24 @@ body::before {
 
 .booking-step h2 {
     color: #dc2626;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-align: center;
+}
+
+.concert-date-info {
+    background: rgba(220, 38, 38, 0.1);
+    border: 2px solid #dc2626;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.concert-date-info h3 {
+    color: #dc2626;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 /* Time selection */
@@ -755,11 +745,6 @@ tr.pending {
     
     .title {
         font-size: 2rem;
-    }
-    
-    .nav {
-        flex-direction: column;
-        gap: 10px;
     }
     
     .main {

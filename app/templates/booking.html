@@ -6,6 +6,9 @@
     <!-- Step 1: Time Selection -->
     <div class="booking-step">
         <h2>Steg 1: Välj tid</h2>
+        <div class="concert-date-info">
+            <h3>Konsertdatum: {{ concert_date }}</h3>
+        </div>
         <form method="POST" action="{{ url_for('public.booking_tickets') }}">
             <div class="time-selection">
                 {% for show in shows %}
@@ -37,6 +40,7 @@
     <div class="booking-step">
         <h2>Steg 2: Välj antal biljetter</h2>
         <div class="selected-time">
+            <p><strong>Konsertdatum:</strong> {{ concert_date }}</p>
             <p><strong>Vald tid:</strong> {{ show.start_time }}-{{ show.end_time }}</p>
         </div>
         
@@ -68,7 +72,7 @@
                     <p><strong>Totalt att betala:</strong> <span id="total-amount">0</span> kr</p>
                 </div>
                 <div class="swish-reminder">
-                    <p>Glöm inte att swisha till <strong>070 123 45 67</strong></p>
+                    <p>Glöm inte att swisha till <strong>{{ swish_recipient_name }}</strong></p>
                 </div>
             </div>
             
@@ -87,6 +91,7 @@
         <div class="booking-summary">
             <h3>Din bokning:</h3>
             <ul>
+                <li><strong>Konsertdatum:</strong> {{ concert_date }}</li>
                 <li><strong>Ordinarie biljetter:</strong> {{ adult_tickets }} st</li>
                 <li><strong>Studentbiljetter:</strong> {{ student_tickets }} st</li>
                 <li><strong>Totalt:</strong> {{ total_amount }} kr</li>
@@ -117,12 +122,12 @@
                 
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="gdpr_consent" name="gdpr_consent" required>
-                    <label for="gdpr_consent">Jag godkänner att denna information sparas i upp till ett år hos Klasskonsertgruppen *</label>
+                    <label for="gdpr_consent">Jag godkänner att denna information sparas för verifiering och raderas senast 1 månad efter konserten hos Klasskonsertgruppen *</label>
                 </div>
             </div>
             
             <div class="swish-reminder">
-                <p><strong>OBS!</strong> Du har reserverat en plats först när du BÅDE har reserverat en biljett här på hemsidan - och du har swishat summan till <strong>070 123 45 67</strong>.</p>
+                <p><strong>OBS!</strong> Du har reserverat en plats först när du BÅDE har reserverat en biljett här på hemsidan - och du har swishat summan till <strong>{{ swish_recipient_name }}</strong>.</p>
             </div>
             
             <div class="step-actions">

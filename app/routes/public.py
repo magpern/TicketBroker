@@ -19,12 +19,14 @@ def generate_swish_url(phone, amount, booking_ref):
 @public_bp.route('/')
 def index():
     """Landing page with class photo and welcome message"""
-    return render_template('index.html')
+    # Get Swish recipient name from settings
+    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand')
+    return render_template('index.html', swish_recipient_name=swish_recipient_name)
 
 @public_bp.route('/booking')
 def booking():
     """Step 1: Time slot selection"""
-    shows = Show.query.all()
+    shows = Show.query.order_by(Show.start_time).all()  # Order chronologically
     if not shows:
         # Create default shows if none exist
         show1 = Show(date='29/1 2026', start_time='17:45', end_time='18:45', total_tickets=100, available_tickets=100)
@@ -34,7 +36,12 @@ def booking():
         db.session.commit()
         shows = [show1, show2]
     
-    return render_template('booking.html', step=1, shows=shows)
+    # Get settings
+    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand')
+    concert_date = Settings.get_value('concert_date', '29/1 2026')
+    
+    return render_template('booking.html', step=1, shows=shows, 
+                         swish_recipient_name=swish_recipient_name, concert_date=concert_date)
 
 @public_bp.route('/booking/tickets', methods=['GET', 'POST'])
 def booking_tickets():
@@ -52,14 +59,18 @@ def booking_tickets():
             flash('Tyvärr är biljetterna slut till den här spelningen.', 'error')
             return redirect(url_for('public.booking'))
         
-        return render_template('booking.html', step=2, show=show)
+        return render_template('booking.html', step=2, show=show, 
+                             swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
+                             concert_date=Settings.get_value('concert_date', '29/1 2026'))
     
     # GET request - redirect to step 1 if no show selected
     if 'show_id' not in session:
         return redirect(url_for('public.booking'))
     
     show = Show.query.get_or_404(session['show_id'])
-    return render_template('booking.html', step=2, show=show)
+    return render_template('booking.html', step=2, show=show, 
+                         swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
+                         concert_date=Settings.get_value('concert_date', '29/1 2026'))
 
 @public_bp.route('/booking/contact', methods=['GET', 'POST'])
 def booking_contact():
@@ -88,7 +99,9 @@ def booking_contact():
         return render_template('booking.html', step=3, 
                              adult_tickets=adult_tickets, 
                              student_tickets=student_tickets,
-                             total_amount=total_amount)
+                             total_amount=total_amount,
+                             swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
+                             concert_date=Settings.get_value('concert_date', '29/1 2026'))
     
     # GET request - redirect to step 2 if no tickets selected
     if 'adult_tickets' not in session or 'student_tickets' not in session:
@@ -97,7 +110,9 @@ def booking_contact():
     return render_template('booking.html', step=3,
                          adult_tickets=session['adult_tickets'],
                          student_tickets=session['student_tickets'],
-                         total_amount=session['total_amount'])
+                         total_amount=session['total_amount'],
+                         swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
+                         concert_date=Settings.get_value('concert_date', '29/1 2026'))
 
 @public_bp.route('/booking/confirm', methods=['POST'])
 def booking_confirm():
