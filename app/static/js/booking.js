@@ -1,6 +1,9 @@
 // Ticket booking JavaScript functionality
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Check for pending booking on page load
+    checkForPendingBooking();
+    
     // Initialize ticket counters
     initTicketCounters();
     
@@ -259,4 +262,65 @@ if (window.innerWidth <= 768) {
             }
         });
     });
+}
+
+// Session recovery functionality
+function checkForPendingBooking() {
+    const pendingBookingId = localStorage.getItem('pendingBooking');
+    
+    if (pendingBookingId && !window.location.pathname.includes('/booking/success/')) {
+        // Show a notification about pending booking
+        const notification = document.createElement('div');
+        notification.className = 'pending-booking-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ffc107;
+            color: #000;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-width: 300px;
+        `;
+        
+        notification.innerHTML = `
+            <h4>Pågående bokning</h4>
+            <p>Du har en pågående bokning som väntar på betalning.</p>
+            <div style="margin-top: 10px;">
+                <button onclick="resumeBooking('${pendingBookingId}')" 
+                        style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px;">
+                    Fortsätt betalning
+                </button>
+                <button onclick="dismissNotification(this)" 
+                        style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px;">
+                    Stäng
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-dismiss after 30 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 30000);
+    }
+}
+
+function resumeBooking(bookingId) {
+    // Redirect to booking success page
+    window.location.href = `/booking/success/${bookingId}`;
+}
+
+function dismissNotification(button) {
+    button.closest('.pending-booking-notification').remove();
+}
+
+// Clear pending booking when payment is confirmed
+function clearPendingBooking() {
+    localStorage.removeItem('pendingBooking');
 }

@@ -34,14 +34,35 @@
             </div>
             
             <div class="form-group">
-                <label for="adult_tickets">Ordinarie biljetter</label>
-                <input type="number" id="adult_tickets" name="adult_tickets" value="{{ booking.adult_tickets }}" min="0" required>
+                <label>Ordinarie biljetter</label>
+                <input type="text" value="{{ booking.adult_tickets }}" readonly class="readonly-field">
+                <small class="readonly-note">Antal biljetter kan inte ändras efter bokning</small>
             </div>
             
             <div class="form-group">
-                <label for="student_tickets">Studentbiljetter</label>
-                <input type="number" id="student_tickets" name="student_tickets" value="{{ booking.student_tickets }}" min="0" required>
+                <label>Studentbiljetter</label>
+                <input type="text" value="{{ booking.student_tickets }}" readonly class="readonly-field">
+                <small class="readonly-note">Antal biljetter kan inte ändras efter bokning</small>
             </div>
+            
+            {% if booking.tickets %}
+            <div class="form-group">
+                <label>Genererade biljetter</label>
+                <div class="ticket-list">
+                    {% for ticket in booking.tickets %}
+                    <div class="ticket-item">
+                        <strong>{{ ticket.ticket_reference }}</strong> - 
+                        {{ 'Ordinarie' if ticket.ticket_type == 'normal' else 'Student' }}
+                        {% if ticket.is_used %}
+                            <span class="status-used">(Använd)</span>
+                        {% else %}
+                            <span class="status-unused">(Oanvänd)</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
             
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Spara ändringar</button>

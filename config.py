@@ -24,5 +24,7 @@ class Config:
     ADULT_TICKET_PRICE = 200
     STUDENT_TICKET_PRICE = 100
     SWISH_NUMBER = '070 123 45 67'
+    SWISH_RECIPIENT_NAME = 'Oliver Ahlstrand'
+    CONTACT_EMAIL = 'oliver.ahlstrand@icloud.com'
     CONCERT_DATE = '29/1 2026'
     CONCERT_VENUE = 'Aulan på Rytmus Stockholm'

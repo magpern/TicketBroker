@@ -9,6 +9,9 @@
         <div class="admin-actions">
             <a href="{{ url_for('admin.settings') }}" class="btn btn-secondary">Inställningar</a>
             <a href="{{ url_for('admin.manage_shows') }}" class="btn btn-secondary">Hantera föreställningar</a>
+            <a href="{{ url_for('admin.tickets') }}" class="btn btn-secondary">Biljetter</a>
+            <a href="{{ url_for('admin.check_ticket') }}" class="btn btn-primary">Kontrollera biljett</a>
+            <a href="{{ url_for('admin.audit_log') }}" class="btn btn-secondary">Auditlogg</a>
             <a href="{{ url_for('admin.export_excel') }}" class="btn btn-secondary">Exportera till Excel</a>
             <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logga ut</a>
         </div>
@@ -26,6 +29,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Bokning</th>
                             <th>Namn</th>
                             <th>E-post</th>
                             <th>Telefon</th>
@@ -33,12 +37,19 @@
                             <th>Student</th>
                             <th>Totalt</th>
                             <th>Status</th>
+                            <th>Biljetter</th>
                             <th>Åtgärder</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for booking in bookings %}
                         <tr class="{% if booking.status == 'confirmed' %}confirmed{% elif booking.buyer_confirmed_payment %}pending{% endif %}">
+                            <td>
+                                <strong>{{ booking.booking_reference }}</strong>
+                                {% if booking.swish_payment_initiated %}
+                                    <br><small>Swish initierad: {{ booking.swish_payment_initiated_at.strftime('%H:%M') if booking.swish_payment_initiated_at }}</small>
+                                {% endif %}
+                            </td>
                             <td>{{ booking.full_name }}</td>
                             <td>{{ booking.email }}</td>
                             <td>{{ booking.phone }}</td>
@@ -52,6 +63,19 @@
                                     <span class="status-pending">Väntar på bekräftelse</span>
                                 {% else %}
                                     <span class="status-reserved">Reserverad</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.tickets %}
+                                    <span class="ticket-count">{{ booking.tickets|length }} biljetter</span>
+                                    <br><small>
+                                        {% for ticket in booking.tickets[:3] %}
+                                            {{ ticket.ticket_reference }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                        {% if booking.tickets|length > 3 %}...{% endif %}
+                                    </small>
+                                {% else %}
+                                    <span class="no-tickets">Inga biljetter</span>
                                 {% endif %}
                             </td>
                             <td class="actions">

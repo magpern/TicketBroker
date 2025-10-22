@@ -1,10 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
+from flask_migrate import Migrate
 from config import Config
 
 db = SQLAlchemy()
 mail = Mail()
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
@@ -12,6 +14,7 @@ def create_app():
     
     db.init_app(app)
     mail.init_app(app)
+    migrate.init_app(app, db)
     
     # Register blueprints
     from app.routes.public import public_bp
@@ -20,27 +23,14 @@ def create_app():
     app.register_blueprint(public_bp)
     app.register_blueprint(admin_bp, url_prefix='/admin')
     
-    # Create tables
-    with app.app_context():
-        db.create_all()
-        
-        # Initialize default settings if they don't exist
+    # Add template context processor for global variables
+    @app.context_processor
+    def inject_global_vars():
         from app.models import Settings
-        default_settings = [
-            ('adult_price', '200'),
-            ('student_price', '100'),
-            ('swish_number', '070 123 45 67'),
-            ('admin_email', 'oliver.ahlstrand@icloud.com'),
-            ('concert_date', '29/1 2026'),
-            ('concert_venue', 'Aulan på Rytmus Stockholm'),
-            ('max_tickets_per_booking', '4')
-        ]
-        
-        for key, value in default_settings:
-            if not Settings.query.filter_by(key=key).first():
-                setting = Settings(key=key, value=value)
-                db.session.add(setting)
-        
-        db.session.commit()
+        contact_email = Settings.get_value('contact_email', 'oliver.ahlstrand@icloud.com')
+        return dict(contact_email=contact_email)
+    
+    # Note: Database tables are now managed by Flask-Migrate
+    # Run 'flask db upgrade' to apply migrations
     
     return app

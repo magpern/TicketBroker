@@ -12,6 +12,88 @@ A Flask-based ticket booking system for class concerts with admin panel, mobile-
 - **Excel Export**: Download booking data as Excel files
 - **Responsive Design**: Red theme with music note decorations
 
+## Enhanced Features (Phase 2)
+
+### Individual Ticket Tracking
+- **Booking References**: Each booking gets a unique 5-character reference (e.g., "65TGR")
+- **Individual Tickets**: After payment confirmation, individual tickets are generated:
+  - Normal tickets: `BOOKING_REF-N01`, `BOOKING_REF-N02`, etc.
+  - Student tickets: `BOOKING_REF-D01`, `BOOKING_REF-D02`, etc.
+- **Ticket Management**: Admin can view, search, and delete individual tickets
+- **Ticket Checking**: Admin interface for checking tickets at the venue
+
+### Swish Payment Integration
+- **Deep Link Integration**: "Betala nu" button opens Swish app directly
+- **Payment Tracking**: System tracks when payment is initiated and confirmed
+- **Dynamic Recipient**: Swish recipient name configurable in admin settings
+- **Session Recovery**: Users can resume payment flow if they leave the page
+
+### Audit Logging System
+- **Comprehensive Logging**: All actions are logged with timestamps and details
+- **Audit Trail**: Track booking creation, payment initiation, ticket generation, etc.
+- **Admin Audit View**: View and filter audit logs in admin panel
+- **Compliance**: Full audit trail for financial compliance
+
+### Enhanced Admin Features
+- **Ticket Management**: View all tickets with filters and search
+- **Booking References**: Display booking references in admin dashboard
+- **Ticket Deletion**: Delete unused tickets with audit logging
+- **Read-only Fields**: Prevent editing ticket quantities after booking
+- **Dynamic Contact**: Footer contact email from settings
+
+### Database Schema
+- **New Tables**: `Ticket`, `Buyer`, `AuditLog`
+- **Enhanced Booking**: Added `booking_reference`, `swish_payment_initiated`, etc.
+- **Settings**: Added `swish_recipient_name`, `contact_email`
+
+### Database Migrations
+
+This project uses **Flask-Migrate** (Alembic) for database versioning, similar to Flyway for Java applications.
+
+#### Migration Commands
+
+```bash
+# Initialize migration repository (first time only)
+python migrate.py init
+
+# Create a new migration after model changes
+python migrate.py create "Add new feature"
+
+# Apply all pending migrations
+python migrate.py upgrade
+
+# Rollback last migration
+python migrate.py downgrade
+
+# Show current migration status
+python migrate.py current
+
+# Show migration history
+python migrate.py history
+
+# Populate database with default data
+python migrate.py populate
+
+# Reset database (WARNING: Deletes all data!)
+python migrate.py reset
+```
+
+#### Manual Flask Commands
+
+```bash
+# Set Flask app
+set FLASK_APP=run.py
+
+# Create migration
+flask db migrate -m "Your migration message"
+
+# Apply migrations
+flask db upgrade
+
+# Show current version
+flask db current
+```
+
 ## Quick Start
 
 ### Option 1: Automated Setup (Recommended)

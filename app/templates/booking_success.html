@@ -4,7 +4,11 @@
 <div class="success-container">
     <div class="success-message">
         <h2>Tack för din reservation!</h2>
-        <p>Du har reserverat dina biljetter. Glöm inte att swisha summan till 070 123 45 67 för att bekräfta din plats.</p>
+        <div class="booking-reference-display">
+            <h3>Din bokningsreferens:</h3>
+            <div class="reference-code">{{ booking.booking_reference }}</div>
+            <p class="reference-warning">Spara denna referens! Du behöver den för att bekräfta din betalning.</p>
+        </div>
     </div>
     
     <div class="booking-details">
@@ -20,18 +24,46 @@
         </ul>
     </div>
     
-    {% if not booking.buyer_confirmed_payment %}
-    <div class="payment-confirmation">
-        <h3>Bekräfta betalning</h3>
-        <p>När du har swishat till 070 123 45 67, klicka på knappen nedan för att bekräfta:</p>
-        
-        <form method="POST" action="{{ url_for('public.confirm_payment', booking_id=booking.id) }}">
-            <button type="submit" class="btn btn-primary">Jag har betalat via Swish</button>
-        </form>
+    {% if booking.status == 'confirmed' %}
+    <div class="payment-status">
+        <p class="status-confirmed">✓ Betalning bekräftad! Dina biljetter är säkra.</p>
+        {% if booking.tickets %}
+        <div class="ticket-references">
+            <h4>Dina biljettreferenser:</h4>
+            <ul>
+                {% for ticket in booking.tickets %}
+                <li><strong>{{ ticket.ticket_reference }}</strong> - {{ 'Ordinarie' if ticket.ticket_type == 'normal' else 'Student' }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% elif booking.buyer_confirmed_payment %}
+    <div class="payment-status">
+        <p class="status-pending">✓ Betalning bekräftad av dig. Väntar på administratörens godkännande.</p>
     </div>
     {% else %}
-    <div class="payment-status">
-        <p class="status-confirmed">✓ Betalning bekräftad av dig. Väntar på administratörens godkännande.</p>
+    <div class="payment-section">
+        <h3>Betalning via Swish</h3>
+        <div class="swish-info">
+            <p>Glöm inte att swisha till <strong>{{ swish_recipient_name }}</strong> ({{ swish_number }})</p>
+            <p><strong>Belopp:</strong> {{ booking.total_amount }} kr</p>
+            <p><strong>Meddelande:</strong> {{ booking.booking_reference }}</p>
+        </div>
+        
+        {% if not booking.swish_payment_initiated %}
+        <div class="payment-buttons">
+            <button id="pay-now-btn" class="btn btn-primary btn-large">Betala nu</button>
+            <p class="payment-note">Klicka för att öppna Swish-appen</p>
+        </div>
+        {% else %}
+        <div class="payment-initiated">
+            <p class="status-initiated">✓ Swish-betalning initierad</p>
+            <form method="POST" action="{{ url_for('public.confirm_payment', booking_id=booking.id) }}">
+                <button type="submit" class="btn btn-success">Jag har betalat via Swish</button>
+            </form>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
     
@@ -39,4 +71,43 @@
         <a href="{{ url_for('public.index') }}" class="btn btn-secondary">Tillbaka till startsidan</a>
     </div>
 </div>
+
+<script>
+// Store booking ID for session recovery
+localStorage.setItem('pendingBooking', '{{ booking.id }}');
+
+// Handle Swish payment initiation
+document.getElementById('pay-now-btn')?.addEventListener('click', function() {
+    fetch('{{ url_for("public.initiate_payment", booking_id=booking.id) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Open Swish app/website
+            window.open(data.swish_url, '_blank');
+            
+            // Show confirmation button
+            this.parentElement.innerHTML = `
+                <p class="status-initiated">✓ Swish-betalning initierad</p>
+                <form method="POST" action="{{ url_for('public.confirm_payment', booking_id=booking.id) }}">
+                    <button type="submit" class="btn btn-success">Jag har betalat via Swish</button>
+                </form>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ett fel uppstod. Försök igen.');
+    });
+});
+
+// Clear localStorage if payment is confirmed
+{% if booking.status == 'confirmed' or booking.buyer_confirmed_payment %}
+localStorage.removeItem('pendingBooking');
+{% endif %}
+</script>
 {% endblock %}

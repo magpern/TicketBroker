@@ -1,10 +1,20 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app.models import Show, Booking, Settings
 from app import db
+from app.utils.audit import log_booking_created, log_payment_initiated, log_buyer_confirmed_payment
 from datetime import datetime
 import re
 
 public_bp = Blueprint('public', __name__)
+
+def generate_swish_url(phone, amount, booking_ref):
+    """Generate Swish deep link URL"""
+    # Remove spaces and format phone number
+    clean_phone = phone.replace(' ', '').replace('-', '')
+    
+    # Format: https://app.swish.nu/1/p/sw/?sw=PHONE&amt=AMOUNT&cur=SEK&msg=REF&src=qr
+    url = f"https://app.swish.nu/1/p/sw/?sw={clean_phone}&amt={amount}&cur=SEK&msg={booking_ref}&src=qr"
+    return url
 
 @public_bp.route('/')
 def index():
@@ -130,9 +140,13 @@ def booking_confirm():
         flash('Tyvärr är biljetterna slut till den här spelningen.', 'error')
         return redirect(url_for('public.booking'))
     
+    # Generate unique booking reference
+    booking_reference = Booking.generate_booking_reference()
+    
     # Create booking
     booking = Booking(
         show_id=session['show_id'],
+        booking_reference=booking_reference,
         first_name=first_name,
         last_name=last_name,
         email=email,
@@ -146,6 +160,9 @@ def booking_confirm():
     try:
         db.session.add(booking)
         db.session.commit()
+        
+        # Log booking creation
+        log_booking_created(booking)
         
         # Clear session data
         session.pop('show_id', None)
@@ -169,7 +186,42 @@ def booking_confirm():
 def booking_success(booking_id):
     """Success page with payment confirmation option"""
     booking = Booking.query.get_or_404(booking_id)
-    return render_template('booking_success.html', booking=booking)
+    
+    # Get Swish settings
+    swish_number = Settings.get_value('swish_number', '070 123 45 67')
+    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand')
+    
+    return render_template('booking_success.html', 
+                         booking=booking,
+                         swish_number=swish_number,
+                         swish_recipient_name=swish_recipient_name)
+
+@public_bp.route('/booking/initiate-payment/<int:booking_id>', methods=['POST'])
+def initiate_payment(booking_id):
+    """Initiate Swish payment and log the action"""
+    booking = Booking.query.get_or_404(booking_id)
+    
+    if booking.status == 'confirmed':
+        flash('Betalningen är redan bekräftad.', 'info')
+        return redirect(url_for('public.booking_success', booking_id=booking_id))
+    
+    # Mark payment as initiated
+    booking.swish_payment_initiated = True
+    booking.swish_payment_initiated_at = datetime.utcnow()
+    db.session.commit()
+    
+    # Log payment initiation
+    log_payment_initiated(booking)
+    
+    # Generate Swish URL
+    swish_number = Settings.get_value('swish_number', '070 123 45 67')
+    swish_url = generate_swish_url(swish_number, booking.total_amount, booking.booking_reference)
+    
+    return jsonify({
+        'success': True,
+        'swish_url': swish_url,
+        'message': 'Swish-betalning initierad'
+    })
 
 @public_bp.route('/booking/confirm-payment/<int:booking_id>', methods=['POST'])
 def confirm_payment(booking_id):
@@ -182,6 +234,9 @@ def confirm_payment(booking_id):
     
     booking.buyer_confirmed_payment = True
     db.session.commit()
+    
+    # Log buyer confirmation
+    log_buyer_confirmed_payment(booking)
     
     # Send notification to admin
     from app.utils.email import send_admin_notification

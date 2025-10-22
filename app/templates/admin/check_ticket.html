@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Biljettkontroll - Klasskonsert 24C{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>Biljettkontroll</h2>
+        <div class="admin-actions">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">← Tillbaka till dashboard</a>
+            <a href="{{ url_for('admin.tickets') }}" class="btn btn-secondary">Visa alla biljetter</a>
+        </div>
+    </div>
+    
+    <div class="ticket-checker-section">
+        <div class="checker-form">
+            <h3>Kontrollera biljett</h3>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="ticket_reference">Biljettreferens:</label>
+                    <input type="text" id="ticket_reference" name="ticket_reference" 
+                           placeholder="T.ex. 65TGR-N01" required 
+                           style="text-transform: uppercase; font-size: 1.2rem; padding: 15px;">
+                </div>
+                <button type="submit" class="btn btn-primary btn-large">Kontrollera biljett</button>
+            </form>
+        </div>
+        
+        {% if ticket %}
+        <div class="ticket-result">
+            <h3>Biljettinformation</h3>
+            <div class="ticket-details">
+                <div class="detail-row">
+                    <strong>Biljettreferens:</strong> {{ ticket.ticket_reference }}
+                </div>
+                <div class="detail-row">
+                    <strong>Typ:</strong> 
+                    <span class="ticket-type {{ ticket.ticket_type }}">
+                        {{ 'Ordinarie' if ticket.ticket_type == 'normal' else 'Student' }}
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <strong>Bokningsreferens:</strong> {{ ticket.booking.booking_reference }}
+                </div>
+                <div class="detail-row">
+                    <strong>Köpare:</strong> {{ ticket.buyer.full_name }}
+                </div>
+                <div class="detail-row">
+                    <strong>Telefon:</strong> {{ ticket.buyer.phone }}
+                </div>
+                <div class="detail-row">
+                    <strong>E-post:</strong> {{ ticket.buyer.email }}
+                </div>
+                <div class="detail-row">
+                    <strong>Föreställning:</strong> {{ ticket.show.start_time }}-{{ ticket.show.end_time }}
+                </div>
+                <div class="detail-row">
+                    <strong>Status:</strong> 
+                    {% if ticket.is_used %}
+                        <span class="status-used">✓ Använd</span>
+                        {% if ticket.used_at %}
+                            <br><small>Använd: {{ ticket.used_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        {% endif %}
+                        {% if ticket.checked_by %}
+                            <br><small>Kontrollerad av: {{ ticket.checked_by }}</small>
+                        {% endif %}
+                    {% else %}
+                        <span class="status-unused">○ Oanvänd</span>
+                    {% endif %}
+                </div>
+                <div class="detail-row">
+                    <strong>Skapad:</strong> {{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}
+                </div>
+            </div>
+            
+            {% if not ticket.is_used %}
+            <div class="ticket-actions">
+                <form method="POST" action="{{ url_for('admin.check_ticket') }}">
+                    <input type="hidden" name="ticket_reference" value="{{ ticket.ticket_reference }}">
+                    <button type="submit" class="btn btn-success btn-large">Markera som använd</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Auto-focus on ticket reference input
+document.getElementById('ticket_reference').focus();
+
+// Auto-uppercase input
+document.getElementById('ticket_reference').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
+</script>
+{% endblock %}
