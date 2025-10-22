@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  ticketbroker:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/data
+      - ./app/static/images:/app/app/static/images
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - DATABASE_URL=sqlite:////data/ticketbroker.db
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-klasskonsert26}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  data:

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Administratör - Klasskonsert 24C{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>Administratörspanel</h2>
+        <div class="admin-actions">
+            <a href="{{ url_for('admin.settings') }}" class="btn btn-secondary">Inställningar</a>
+            <a href="{{ url_for('admin.manage_shows') }}" class="btn btn-secondary">Hantera föreställningar</a>
+            <a href="{{ url_for('admin.export_excel') }}" class="btn btn-secondary">Exportera till Excel</a>
+            <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logga ut</a>
+        </div>
+    </div>
+    
+    <div class="bookings-section">
+        <h3>Alla bokningar</h3>
+        
+        {% for show_time, bookings in bookings_by_show.items() %}
+        <div class="show-group">
+            <h4>{{ show_time }}</h4>
+            
+            {% if bookings %}
+            <div class="bookings-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Namn</th>
+                            <th>E-post</th>
+                            <th>Telefon</th>
+                            <th>Ordinarie</th>
+                            <th>Student</th>
+                            <th>Totalt</th>
+                            <th>Status</th>
+                            <th>Åtgärder</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr class="{% if booking.status == 'confirmed' %}confirmed{% elif booking.buyer_confirmed_payment %}pending{% endif %}">
+                            <td>{{ booking.full_name }}</td>
+                            <td>{{ booking.email }}</td>
+                            <td>{{ booking.phone }}</td>
+                            <td>{{ booking.adult_tickets }}</td>
+                            <td>{{ booking.student_tickets }}</td>
+                            <td>{{ booking.total_amount }} kr</td>
+                            <td>
+                                {% if booking.status == 'confirmed' %}
+                                    <span class="status-confirmed">Bekräftad</span>
+                                {% elif booking.buyer_confirmed_payment %}
+                                    <span class="status-pending">Väntar på bekräftelse</span>
+                                {% else %}
+                                    <span class="status-reserved">Reserverad</span>
+                                {% endif %}
+                            </td>
+                            <td class="actions">
+                                {% if booking.status != 'confirmed' %}
+                                    <form method="POST" action="{{ url_for('admin.confirm_payment', booking_id=booking.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-small btn-success">Bekräfta betalning</button>
+                                    </form>
+                                {% endif %}
+                                <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}" class="btn btn-small btn-secondary">Redigera</a>
+                                <form method="POST" action="{{ url_for('admin.delete_booking', booking_id=booking.id) }}" style="display: inline;" onsubmit="return confirm('Är du säker på att du vill radera denna bokning?')">
+                                    <button type="submit" class="btn btn-small btn-danger">Radera</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>Inga bokningar för denna tid.</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
