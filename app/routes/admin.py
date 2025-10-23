@@ -228,14 +228,20 @@ def resend_tickets(booking_id):
     
     try:
         from app.utils.email import send_payment_confirmed
+        print(f"Attempting to resend tickets for booking {booking.booking_reference}")
         success = send_payment_confirmed(booking)
         
         if success:
             flash(f'Biljetter skickade om till {booking.full_name}!', 'success')
+            print(f"Successfully resent tickets for booking {booking.booking_reference}")
         else:
             flash('Ett fel uppstod vid omssändning av biljetter.', 'error')
+            print(f"Failed to resend tickets for booking {booking.booking_reference}")
     except Exception as e:
         flash(f'Ett fel uppstod: {str(e)}', 'error')
+        print(f"Exception when resending tickets for booking {booking.booking_reference}: {str(e)}")
+        import traceback
+        traceback.print_exc()
     
     return redirect(url_for('admin.dashboard'))
 

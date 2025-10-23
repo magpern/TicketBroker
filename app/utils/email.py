@@ -114,13 +114,19 @@ def send_payment_confirmed(booking):
         from app.models import Settings
         from app.utils.pdf_tickets import generate_tickets_pdf
         
+        print(f"Starting send_payment_confirmed for booking {booking.booking_reference}")
+        
         # Get concert information
         concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
         concert_date = Settings.get_value('concert_date', '29/1 2026')
         concert_venue = Settings.get_value('concert_venue', 'Aulan på Rytmus Stockholm')
         
+        print(f"Concert info: {concert_name}, {concert_date}, {concert_venue}")
+        
         # Generate PDF with all tickets
+        print(f"Generating PDF for {len(booking.tickets)} tickets")
         pdf_data = generate_tickets_pdf(booking)
+        print(f"PDF generated successfully, size: {len(pdf_data)} bytes")
         
         # Create email message
         msg = Message(
@@ -264,7 +270,9 @@ def send_payment_confirmed(booking):
         )
         
         # Send email
+        print(f"Sending email to {booking.email}")
         mail.send(msg)
+        print(f"Email sent successfully to {booking.email}")
         return True
         
     except Exception as e:
