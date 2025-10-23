@@ -61,11 +61,23 @@ def generate_tickets_pdf(booking):
     concert_date = Settings.get_value('concert_date', '29/1 2026')
     concert_venue = Settings.get_value('concert_venue', 'Aulan på Rytmus Stockholm')
     
-    # Get logo path if available
-    logo_path = None
-    qr_logo_filename = Settings.get_value('qr_logo_path')
-    if qr_logo_filename:
-        logo_path = os.path.join('app', 'static', 'uploads', qr_logo_filename)
+    # Get logo data from database if available
+    logo_data = None
+    qr_logo_data = Settings.get_value('qr_logo_data')
+    qr_logo_content_type = Settings.get_value('qr_logo_content_type', 'image/jpeg')
+    
+    if qr_logo_data:
+        import base64
+        from PIL import Image as PILImage
+        import io
+        
+        try:
+            # Decode base64 data
+            logo_bytes = base64.b64decode(qr_logo_data)
+            logo_data = io.BytesIO(logo_bytes)
+        except Exception as e:
+            print(f"Error decoding logo data: {e}")
+            logo_data = None
     
     # Build PDF content
     story = []
@@ -115,7 +127,7 @@ def generate_tickets_pdf(booking):
         story.append(Spacer(1, 20))
         
         # Generate QR code with logo
-        qr_code_data = generate_ticket_qr_code(ticket, logo_path)
+        qr_code_data = generate_ticket_qr_code(ticket, logo_data)
         qr_buffer = io.BytesIO(base64.b64decode(qr_code_data))
         
         # Add QR code to PDF
@@ -153,7 +165,7 @@ def generate_tickets_pdf(booking):
     
     return buffer.getvalue()
 
-def generate_ticket_qr_code(ticket, logo_path=None):
+def generate_ticket_qr_code(ticket, logo_data=None):
     """Generate QR code for a specific ticket with optional logo"""
     import qrcode
     from PIL import Image as PILImage, ImageDraw
@@ -174,11 +186,11 @@ def generate_ticket_qr_code(ticket, logo_path=None):
     # Create QR code image
     qr_img = qr.make_image(fill_color="black", back_color="white")
     
-    # Add logo if provided and exists
-    if logo_path and os.path.exists(logo_path):
+    # Add logo if provided
+    if logo_data:
         try:
-            # Open logo
-            logo = PILImage.open(logo_path)
+            # Open logo from BytesIO
+            logo = PILImage.open(logo_data)
             
             # Calculate logo size - smaller to avoid interfering with QR code
             qr_size = qr_img.size[0]

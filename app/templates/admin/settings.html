@@ -90,10 +90,10 @@
                 <div class="form-group">
                     <label for="qr_logo">Ladda upp logo (PNG/JPG, max 200x200px)</label>
                     <input type="file" id="qr_logo" name="qr_logo" accept="image/png,image/jpeg,image/jpg">
-                    {% if settings.get('qr_logo_path') %}
+                    {% if settings.get('qr_logo_data') %}
                         <div class="current-logo">
                             <p>Aktuell logo:</p>
-                            <img src="{{ url_for('static', filename='uploads/' + settings.get('qr_logo_path')) }}" 
+                            <img src="data:{{ settings.get('qr_logo_content_type', 'image/jpeg') }};base64,{{ settings.get('qr_logo_data') }}" 
                                  alt="Current logo" style="max-width: 100px; max-height: 100px; border: 1px solid #ddd; padding: 5px;">
                             <p><small>För att ändra logo, välj en ny fil ovan</small></p>
                         </div>

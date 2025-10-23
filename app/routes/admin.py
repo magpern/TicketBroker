@@ -102,22 +102,18 @@ def update_settings():
                 # Validate file type
                 allowed_extensions = {'png', 'jpg', 'jpeg'}
                 if '.' in logo_file.filename and logo_file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
-                    # Generate unique filename
-                    import uuid
-                    import os
-                    from werkzeug.utils import secure_filename
+                    # Read file data and convert to base64
+                    import base64
+                    logo_data = logo_file.read()
+                    logo_base64 = base64.b64encode(logo_data).decode('utf-8')
                     
-                    filename = secure_filename(logo_file.filename)
-                    file_extension = filename.rsplit('.', 1)[1].lower()
-                    unique_filename = f"qr_logo_{uuid.uuid4().hex}.{file_extension}"
+                    # Get file extension for content type
+                    file_extension = logo_file.filename.rsplit('.', 1)[1].lower()
+                    content_type = f"image/{file_extension}" if file_extension != 'jpg' else "image/jpeg"
                     
-                    # Save file
-                    upload_path = os.path.join('app', 'static', 'uploads')
-                    os.makedirs(upload_path, exist_ok=True)
-                    logo_file.save(os.path.join(upload_path, unique_filename))
-                    
-                    # Save path to settings
-                    Settings.set_value('qr_logo_path', unique_filename)
+                    # Store base64 data and content type in database
+                    Settings.set_value('qr_logo_data', logo_base64)
+                    Settings.set_value('qr_logo_content_type', content_type)
                 else:
                     flash('Ogiltigt filformat. Endast PNG, JPG och JPEG är tillåtna.', 'error')
                     return redirect(url_for('admin.settings'))
