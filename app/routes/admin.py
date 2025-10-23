@@ -95,6 +95,33 @@ def settings():
 def update_settings():
     """Update settings"""
     try:
+        # Handle file upload for QR logo
+        if 'qr_logo' in request.files:
+            logo_file = request.files['qr_logo']
+            if logo_file and logo_file.filename:
+                # Validate file type
+                allowed_extensions = {'png', 'jpg', 'jpeg'}
+                if '.' in logo_file.filename and logo_file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                    # Generate unique filename
+                    import uuid
+                    import os
+                    from werkzeug.utils import secure_filename
+                    
+                    filename = secure_filename(logo_file.filename)
+                    file_extension = filename.rsplit('.', 1)[1].lower()
+                    unique_filename = f"qr_logo_{uuid.uuid4().hex}.{file_extension}"
+                    
+                    # Save file
+                    upload_path = os.path.join('app', 'static', 'uploads')
+                    os.makedirs(upload_path, exist_ok=True)
+                    logo_file.save(os.path.join(upload_path, unique_filename))
+                    
+                    # Save path to settings
+                    Settings.set_value('qr_logo_path', unique_filename)
+                else:
+                    flash('Ogiltigt filformat. Endast PNG, JPG och JPEG är tillåtna.', 'error')
+                    return redirect(url_for('admin.settings'))
+        
         # Update each setting
         for key in request.form:
             if key != 'csrf_token':

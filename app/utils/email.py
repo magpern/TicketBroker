@@ -103,185 +103,168 @@ def send_admin_notification(booking):
         return False
 
 def send_payment_confirmed(booking):
-    """Send confirmation email with professional ticket-style QR codes when payment is confirmed by admin"""
+    """Send payment confirmed email with PDF tickets attached"""
     try:
-        admin_email = _get_admin_email()
+        from flask_mail import Message
+        from app import mail
+        from app.models import Settings
+        from app.utils.pdf_tickets import generate_tickets_pdf
+        
+        # Get concert information
         concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
         concert_date = Settings.get_value('concert_date', '29/1 2026')
         concert_venue = Settings.get_value('concert_venue', 'Aulan på Rytmus Stockholm')
         
+        # Generate PDF with all tickets
+        pdf_data = generate_tickets_pdf(booking)
+        
+        # Create email message
         msg = Message(
-            subject=f'🎫 Dina biljetter är klara! - {booking.booking_reference}',
+            subject=f'Ticket Confirmation - {concert_name} ({booking.booking_reference})',
             recipients=[booking.email],
-            sender=admin_email
+            sender=Settings.get_value('admin_email', 'klasskonsertgruppen@gmail.com')
         )
         
-        # Generate professional ticket cards
-        tickets_html = ""
-        if booking.tickets:
-            tickets_html = f"""
-            <div style="margin: 30px 0;">
-                <h2 style="color: #dc2626; text-align: center; margin-bottom: 30px;">🎫 Dina biljetter för {concert_name}</h2>
-            """
-            
-            for ticket in booking.tickets:
-                ticket_type_text = "Ordinarie" if ticket.ticket_type == "normal" else "Student"
-                ticket_type_color = "#dc2626" if ticket.ticket_type == "normal" else "#059669"
-                
-                # Generate QR code for ticket
-                import qrcode
-                import io
-                import base64
-                
-                qr = qrcode.QRCode(version=1, box_size=8, border=4)
-                qr.add_data(ticket.ticket_reference)
-                qr.make(fit=True)
-                
-                img = qr.make_image(fill_color="black", back_color="white")
-                buffer = io.BytesIO()
-                img.save(buffer, format='PNG')
-                buffer.seek(0)
-                img_base64 = base64.b64encode(buffer.getvalue()).decode()
-                
-                tickets_html += f"""
-                <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); 
-                            border: 3px solid {ticket_type_color}; 
-                            border-radius: 20px; 
-                            padding: 25px; 
-                            margin: 20px 0; 
-                            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-                            position: relative;
-                            overflow: hidden;">
-                    
-                    <!-- Ticket Header -->
-                    <div style="background: {ticket_type_color}; 
-                                color: white; 
-                                padding: 15px; 
-                                margin: -25px -25px 20px -25px; 
-                                border-radius: 17px 17px 0 0;
-                                text-align: center;">
-                        <h3 style="margin: 0; font-size: 18px; font-weight: bold;">{concert_name}</h3>
-                        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">{concert_date}</p>
-                    </div>
-                    
-                    <!-- Ticket Content -->
-                    <div style="display: flex; align-items: center; gap: 20px;">
-                        <!-- QR Code -->
-                        <div style="flex-shrink: 0;">
-                            <img src="data:image/png;base64,{img_base64}" 
-                                 alt="QR Code for {ticket.ticket_reference}" 
-                                 style="width: 120px; height: 120px; border: 2px solid #e5e7eb; border-radius: 10px;">
-                        </div>
-                        
-                        <!-- Ticket Details -->
-                        <div style="flex: 1;">
-                            <div style="margin-bottom: 15px;">
-                                <h4 style="color: {ticket_type_color}; margin: 0 0 10px 0; font-size: 16px;">
-                                    {ticket_type_text} Biljett
-                                </h4>
-                                <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                                    <strong>Referens:</strong> {ticket.ticket_reference}
-                                </p>
-                            </div>
-                            
-                            <div style="background: #f3f4f6; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                                <p style="margin: 0; font-size: 13px; color: #374151;">
-                                    <strong>📍 Plats:</strong> {concert_venue}<br>
-                                    <strong>🕐 Tid:</strong> {booking.show.start_time}-{booking.show.end_time}
-                                </p>
-                            </div>
-                            
-                            <div style="text-align: center; padding: 10px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                                <p style="margin: 0; font-size: 12px; color: #92400e; font-weight: bold;">
-                                    📱 Visa denna QR-kod vid ingången
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Ticket Footer -->
-                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e5e7eb; text-align: center;">
-                        <p style="margin: 0; font-size: 11px; color: #9ca3af;">
-                            Denna biljett är personlig och kan inte överlämnas till andra
-                        </p>
-                    </div>
-                </div>
-                """
-            
-            tickets_html += "</div>"
-        
+        # Email body - Professional design
         msg.html = f"""
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Dina biljetter - {concert_name}</title>
+            <title>Ticket Confirmation - {concert_name}</title>
         </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-                     line-height: 1.6; color: #374151; background: #f9fafb; margin: 0; padding: 20px;">
+        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                     line-height: 1.6; color: #333333; background: #f8f9fa; margin: 0; padding: 0;">
             
-            <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 15px; 
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; 
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
                 
-                <!-- Header -->
-                <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); 
-                            color: white; padding: 30px; text-align: center;">
-                    <h1 style="margin: 0; font-size: 28px; font-weight: bold;">🎉 Betalning bekräftad!</h1>
-                    <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
-                        Dina biljetter är nu säkra och klara för konserten
+                <!-- Professional Header -->
+                <div style="background: #2c3e50; color: white; padding: 30px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: 1px;">
+                        TICKET CONFIRMATION
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9; font-weight: 300;">
+                        {concert_name} • {concert_date}
                     </p>
                 </div>
                 
                 <!-- Main Content -->
-                <div style="padding: 30px;">
-                    <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 10px; 
-                                padding: 20px; margin-bottom: 30px;">
-                        <h3 style="margin: 0 0 10px 0; color: #0369a1;">📋 Bokningsinformation</h3>
-                        <p style="margin: 0; font-size: 14px;">
-                            <strong>Bokningsreferens:</strong> {booking.booking_reference}<br>
-                            <strong>Namn:</strong> {booking.full_name}<br>
-                            <strong>E-post:</strong> {booking.email}<br>
-                            <strong>Telefon:</strong> {booking.phone}
+                <div style="padding: 40px 30px;">
+                    
+                    <!-- Confirmation Message -->
+                    <div style="text-align: center; margin-bottom: 40px;">
+                        <h2 style="margin: 0 0 15px 0; font-size: 20px; color: #27ae60; font-weight: 400;">
+                            Payment Confirmed
+                        </h2>
+                        <p style="margin: 0; font-size: 16px; color: #666; font-weight: 300;">
+                            Your tickets have been successfully processed and are ready for the event.
                         </p>
                     </div>
                     
-                    {tickets_html}
+                    <!-- Booking Details -->
+                    <div style="background: #f8f9fa; border-left: 4px solid #3498db; padding: 25px; margin-bottom: 30px;">
+                        <h3 style="margin: 0 0 20px 0; font-size: 16px; color: #2c3e50; font-weight: 500;">
+                            BOOKING DETAILS
+                        </h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 500; color: #555; width: 140px;">Booking Reference:</td>
+                                <td style="padding: 8px 0; color: #333; font-family: monospace; font-size: 14px;">{booking.booking_reference}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 500; color: #555;">Name:</td>
+                                <td style="padding: 8px 0; color: #333;">{booking.full_name}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 500; color: #555;">Email:</td>
+                                <td style="padding: 8px 0; color: #333;">{booking.email}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 500; color: #555;">Phone:</td>
+                                <td style="padding: 8px 0; color: #333;">{booking.phone}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 500; color: #555;">Tickets:</td>
+                                <td style="padding: 8px 0; color: #333;">{len(booking.tickets)} tickets</td>
+                            </tr>
+                        </table>
+                    </div>
                     
-                    <!-- Important Instructions -->
-                    <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; 
-                                padding: 20px; margin-top: 30px;">
-                        <h3 style="margin: 0 0 15px 0; color: #dc2626;">⚠️ Viktigt för konserten</h3>
-                        <ul style="margin: 0; padding-left: 20px; font-size: 14px;">
-                            <li>Ta med dig alla dina biljetter (QR-koder) till konserten</li>
-                            <li>Biljetterna kommer att skannas vid ingången</li>
-                            <li>Du kan visa biljetterna på din telefon från detta e-postmeddelande</li>
-                            <li>Varje biljett är personlig och kan inte överlämnas till andra</li>
-                            <li>Kom i tid - ingången stänger 15 minuter efter konsertens start</li>
+                    <!-- Ticket Information -->
+                    <div style="background: #e8f5e8; border: 1px solid #27ae60; padding: 25px; margin-bottom: 30px;">
+                        <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #27ae60; font-weight: 500;">
+                            YOUR TICKETS
+                        </h3>
+                        <p style="margin: 0; font-size: 14px; color: #555;">
+                            Your tickets are attached to this email as a PDF document. Each ticket contains a unique QR code for entry.
+                        </p>
+                    </div>
+                    
+                    <!-- Event Information -->
+                    <div style="background: #f8f9fa; padding: 25px; margin-bottom: 30px;">
+                        <h3 style="margin: 0 0 20px 0; font-size: 16px; color: #2c3e50; font-weight: 500;">
+                            EVENT INFORMATION
+                        </h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 500; color: #555; width: 80px;">Date:</td>
+                                <td style="padding: 8px 0; color: #333;">{concert_date}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 500; color: #555;">Time:</td>
+                                <td style="padding: 8px 0; color: #333;">{booking.show.start_time} - {booking.show.end_time}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; font-weight: 500; color: #555;">Venue:</td>
+                                <td style="padding: 8px 0; color: #333;">{concert_venue}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <!-- Instructions -->
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 25px; margin-bottom: 30px;">
+                        <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #856404; font-weight: 500;">
+                            IMPORTANT INSTRUCTIONS
+                        </h3>
+                        <ul style="margin: 0; padding-left: 20px; color: #856404;">
+                            <li style="margin-bottom: 8px; font-size: 14px;">Present your QR code at the entrance for scanning</li>
+                            <li style="margin-bottom: 8px; font-size: 14px;">Bring valid photo identification for verification</li>
+                            <li style="margin-bottom: 8px; font-size: 14px;">Arrive 15 minutes before the event start time</li>
+                            <li style="margin-bottom: 8px; font-size: 14px;">Each ticket is valid for one person only</li>
                         </ul>
                     </div>
                     
-                    <!-- Contact Info -->
-                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; 
-                                border-top: 1px solid #e5e7eb;">
-                        <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                            Har du frågor? Kontakta oss på <a href="mailto:{admin_email}" 
-                            style="color: #dc2626; text-decoration: none;">{admin_email}</a>
-                        </p>
-                        <p style="margin: 10px 0 0 0; font-size: 12px; color: #9ca3af;">
-                            Vi ses på konserten! 🎵
-                        </p>
-                    </div>
+                </div>
+                
+                <!-- Professional Footer -->
+                <div style="background: #34495e; color: white; padding: 25px; text-align: center;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 300;">
+                        Questions? Contact us at {Settings.get_value('contact_email', 'oliver.ahlstrand@icloud.com')}
+                    </p>
+                    <p style="margin: 0; font-size: 12px; opacity: 0.8; font-weight: 300;">
+                        This is an automated message. Please do not reply to this email.
+                    </p>
                 </div>
             </div>
         </body>
         </html>
         """
         
+        # Attach PDF
+        msg.attach(
+            filename=f"biljetter_{booking.booking_reference}.pdf",
+            content_type="application/pdf",
+            data=pdf_data
+        )
+        
+        # Send email
         mail.send(msg)
         return True
+        
     except Exception as e:
-        current_app.logger.error(f"Failed to send payment confirmation email: {e}")
+        print(f"Error sending payment confirmed email: {str(e)}")
         return False
 
 def send_ticket_resend(booking):
