@@ -45,6 +45,10 @@ def send_booking_confirmation(booking):
         <h3>Viktigt - Betalning krävs!</h3>
         <p>Du har reserverat en plats först när du BÅDE har reserverat en biljett här på hemsidan - och du har swishat summan till <strong>{swish_number}</strong>.</p>
         
+        <div style="background-color: #f0f9ff; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; font-weight: 500; color: #1e40af;"><strong>OBS:</strong> Om du redan betalat så behöver du inte betala igen, utan avvakta bekräftelse från arrangören.</p>
+        </div>
+        
         <div style="text-align: center; margin: 30px 0;">
             <a href="{payment_url}" style="background-color: #dc2626; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Betala nu</a>
         </div>
