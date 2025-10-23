@@ -326,3 +326,49 @@ def send_multiple_tickets_resend(bookings):
     except Exception as e:
         current_app.logger.error(f"Failed to resend multiple tickets email: {e}")
         return False
+
+def send_contact_message(name, email, phone, subject, message):
+    """Send contact form message to admin"""
+    try:
+        from app.models import Settings
+        admin_email = Settings.get_value('admin_email', 'oliver.ahlstrand@icloud.com')
+        concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
+        
+        msg = Message(
+            subject=f'Kontaktformulär: {subject} - {concert_name}',
+            recipients=[admin_email],
+            sender=current_app.config['MAIL_DEFAULT_SENDER'],
+            reply_to=[email]  # Admin can reply directly to the sender
+        )
+        
+        phone_info = f"<li><strong>Telefon:</strong> {phone}</li>" if phone else ""
+        
+        msg.html = f"""
+        <h2>Nytt meddelande från kontaktformuläret</h2>
+        <p>Du har fått ett nytt meddelande från {concert_name} kontaktformulär.</p>
+        
+        <h3>Avsändaruppgifter:</h3>
+        <ul>
+            <li><strong>Namn:</strong> {name}</li>
+            <li><strong>E-post:</strong> {email}</li>
+            {phone_info}
+            <li><strong>Ämne:</strong> {subject}</li>
+        </ul>
+        
+        <h3>Meddelande:</h3>
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626;">
+            {message.replace(chr(10), '<br>')}
+        </div>
+        
+        <hr style="margin: 30px 0;">
+        
+        <p><strong>Svara direkt på detta e-postmeddelande för att svara till {name}.</strong></p>
+        
+        <p>Meddelandet skickades från: {concert_name} kontaktformulär</p>
+        """
+        
+        mail.send(msg)
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Failed to send contact message: {e}")
+        return False

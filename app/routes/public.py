@@ -413,3 +413,41 @@ def find_booking():
             return render_template('find_booking.html')
     
     return render_template('find_booking.html')
+
+@public_bp.route('/contact', methods=['GET', 'POST'])
+def contact():
+    """Contact form page"""
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
+        subject = request.form.get('subject', '').strip()
+        message = request.form.get('message', '').strip()
+        gdpr_consent = request.form.get('gdpr_consent') == 'on'
+        
+        # Validation
+        if not all([name, email, subject, message]):
+            flash('Alla obligatoriska fält måste fyllas i.', 'error')
+            return render_template('contact.html')
+        
+        if not gdpr_consent:
+            flash('Du måste godkänna att informationen sparas.', 'error')
+            return render_template('contact.html')
+        
+        # Validate email format
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, email):
+            flash('Ange en giltig e-postadress.', 'error')
+            return render_template('contact.html')
+        
+        # Send contact email
+        from app.utils.email import send_contact_message
+        if send_contact_message(name, email, phone, subject, message):
+            flash('Tack för ditt meddelande! Vi återkommer så snart som möjligt.', 'success')
+            return redirect(url_for('public.contact'))
+        else:
+            flash('Ett fel uppstod vid skickande av meddelandet. Försök igen senare.', 'error')
+            return render_template('contact.html')
+    
+    return render_template('contact.html')
