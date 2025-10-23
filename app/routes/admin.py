@@ -12,6 +12,10 @@ from openpyxl import Workbook
 
 admin_bp = Blueprint('admin', __name__)
 
+def get_concert_name():
+    """Helper function to get concert name from settings"""
+    return Settings.get_value('concert_name', 'Klasskonsert 24C')
+
 def login_required(f):
     """Decorator to require admin login"""
     def decorated_function(*args, **kwargs):
@@ -35,7 +39,7 @@ def login():
         else:
             flash('Felaktigt lösenord.', 'error')
     
-    return render_template('admin/login.html')
+    return render_template('admin/login.html', concert_name=get_concert_name())
 
 @admin_bp.route('/logout')
 def logout():
@@ -73,7 +77,8 @@ def dashboard():
     
     return render_template('admin/dashboard.html', 
                          bookings_by_show=bookings_by_show,
-                         filter_unconfirmed=filter_unconfirmed)
+                         filter_unconfirmed=filter_unconfirmed,
+                         concert_name=get_concert_name())
 
 @admin_bp.route('/settings')
 @login_required
@@ -83,7 +88,7 @@ def settings():
     for setting in Settings.query.all():
         settings_data[setting.key] = setting.value
     
-    return render_template('admin/settings.html', settings=settings_data)
+    return render_template('admin/settings.html', settings=settings_data, concert_name=get_concert_name())
 
 @admin_bp.route('/settings/update', methods=['POST'])
 @login_required
@@ -156,7 +161,7 @@ def edit_booking(booking_id):
         except Exception as e:
             flash('Ett fel uppstod vid uppdatering.', 'error')
     
-    return render_template('admin/edit_booking.html', booking=booking)
+    return render_template('admin/edit_booking.html', booking=booking, concert_name=get_concert_name())
 
 @admin_bp.route('/booking/<int:booking_id>/delete', methods=['POST'])
 @login_required
@@ -222,7 +227,7 @@ def export_excel():
 def manage_shows():
     """Manage shows/times"""
     shows = Show.query.all()
-    return render_template('admin/shows.html', shows=shows)
+    return render_template('admin/shows.html', shows=shows, concert_name=get_concert_name())
 
 @admin_bp.route('/shows/create', methods=['POST'])
 @login_required
@@ -259,15 +264,15 @@ def edit_show(show_id):
             # Validation
             if new_total_tickets < 0:
                 flash('Totalt antal biljetter kan inte vara negativt.', 'error')
-                return render_template('admin/edit_show.html', show=show)
+                return render_template('admin/edit_show.html', show=show, concert_name=get_concert_name())
             
             if new_available_tickets < 0:
                 flash('Tillgängliga biljetter kan inte vara negativa.', 'error')
-                return render_template('admin/edit_show.html', show=show)
+                return render_template('admin/edit_show.html', show=show, concert_name=get_concert_name())
             
             if new_available_tickets > new_total_tickets:
                 flash('Tillgängliga biljetter kan inte vara fler än totalt antal biljetter.', 'error')
-                return render_template('admin/edit_show.html', show=show)
+                return render_template('admin/edit_show.html', show=show, concert_name=get_concert_name())
             
             # Calculate how many tickets are currently booked
             confirmed_bookings = [b for b in show.bookings if b.status == 'confirmed']
@@ -276,7 +281,7 @@ def edit_show(show_id):
             # Check if we're trying to set available tickets too low
             if new_available_tickets < total_booked:
                 flash(f'Kan inte sätta tillgängliga biljetter till {new_available_tickets}. Det finns redan {total_booked} bekräftade biljetter.', 'error')
-                return render_template('admin/edit_show.html', show=show)
+                return render_template('admin/edit_show.html', show=show, concert_name=get_concert_name())
             
             # Update show
             show.total_tickets = new_total_tickets
@@ -291,7 +296,7 @@ def edit_show(show_id):
         except Exception as e:
             flash('Ett fel uppstod vid uppdatering.', 'error')
     
-    return render_template('admin/edit_show.html', show=show)
+    return render_template('admin/edit_show.html', show=show, concert_name=get_concert_name())
 
 @admin_bp.route('/shows/<int:show_id>/delete', methods=['POST'])
 @login_required
@@ -346,7 +351,7 @@ def tickets():
     shows = Show.query.all()
     
     return render_template('admin/tickets.html', tickets=tickets, shows=shows,
-                         selected_show=show_id, used_filter=used_filter, search=search, booking_ref=booking_ref)
+                         selected_show=show_id, used_filter=used_filter, search=search, booking_ref=booking_ref, concert_name=get_concert_name())
 
 @admin_bp.route('/ticket/<int:ticket_id>/delete', methods=['POST'])
 @login_required
@@ -374,17 +379,17 @@ def check_ticket():
         
         if not ticket_ref:
             flash('Ange en biljettreferens.', 'error')
-            return render_template('admin/check_ticket.html')
+            return render_template('admin/check_ticket.html', concert_name=get_concert_name())
         
         ticket = Ticket.query.filter_by(ticket_reference=ticket_ref).first()
         
         if not ticket:
             flash(f'Biljett {ticket_ref} hittades inte.', 'error')
-            return render_template('admin/check_ticket.html')
+            return render_template('admin/check_ticket.html', concert_name=get_concert_name())
         
         if ticket.is_used:
             flash(f'Biljett {ticket_ref} är redan använd.', 'warning')
-            return render_template('admin/check_ticket.html', ticket=ticket)
+            return render_template('admin/check_ticket.html', ticket=ticket, concert_name=get_concert_name())
         
         # Mark as used
         try:
@@ -393,9 +398,9 @@ def check_ticket():
         except Exception as e:
             flash(f'Ett fel uppstod: {str(e)}', 'error')
         
-        return render_template('admin/check_ticket.html', ticket=ticket)
+        return render_template('admin/check_ticket.html', ticket=ticket, concert_name=get_concert_name())
     
-    return render_template('admin/check_ticket.html')
+    return render_template('admin/check_ticket.html', concert_name=get_concert_name())
 
 @admin_bp.route('/audit')
 @login_required
@@ -432,4 +437,4 @@ def audit_log():
                              'action': action_filter,
                              'entity': entity_filter,
                              'user': user_filter
-                         })
+                         }, concert_name=get_concert_name())

@@ -172,18 +172,23 @@ body::before {
 .concert-info-compact {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 15px;
     background: rgba(255, 255, 255, 0.8);
-    padding: 25px;
+    padding: 15px;
     border-radius: 15px;
-    margin: 20px 0;
+    margin: 15px 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .concert-details h3, .pricing-compact h3 {
     color: #dc2626;
-    margin-bottom: 15px;
-    font-size: 1.2rem;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.concert-details p, .pricing-compact p {
+    margin-bottom: 6px;
+    line-height: 1.4;
 }
 
 /* Prominent CTA section */
@@ -823,10 +828,23 @@ tr.pending {
         display: block;
     }
     
-    /* Make concert info single column on mobile */
+    /* Keep concert info side-by-side on mobile with smaller text */
     .concert-info-compact {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 10px;
+        margin: 10px 0;
+    }
+    
+    .concert-details h3, .pricing-compact h3 {
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+    }
+    
+    .concert-details p, .pricing-compact p {
+        margin-bottom: 3px;
+        font-size: 0.8rem;
+        line-height: 1.3;
     }
     
     /* Adjust CTA text size on mobile */

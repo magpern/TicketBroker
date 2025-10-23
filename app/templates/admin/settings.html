@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Inställningar - Klasskonsert 24C{% endblock %}
+{% block title %}Inställningar - {{ concert_name or 'Klasskonsert 24C' }}{% endblock %}
 
 {% block content %}
 <div class="admin-container">
@@ -51,6 +51,16 @@
             
             <div class="settings-group">
                 <h3>Konsertinformation</h3>
+                <div class="form-group">
+                    <label for="concert_name">Konsert namn</label>
+                    <input type="text" id="concert_name" name="concert_name" value="{{ settings.get('concert_name', 'Klasskonsert 24C') }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="welcome_message">Välkomstmeddelande</label>
+                    <input type="text" id="welcome_message" name="welcome_message" value="{{ settings.get('welcome_message', 'Välkommen till 24c:s klasspelning!') }}" required>
+                </div>
+                
                 <div class="form-group">
                     <label for="concert_date">Konsertdatum</label>
                     <input type="text" id="concert_date" name="concert_date" value="{{ settings.get('concert_date', '29/1 2026') }}" required>

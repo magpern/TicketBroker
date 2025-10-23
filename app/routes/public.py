@@ -62,6 +62,8 @@ def index():
     adult_price = Settings.get_value('adult_price', '200')
     student_price = Settings.get_value('student_price', '100')
     concert_date = Settings.get_value('concert_date', '29/1 2026')
+    concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
+    welcome_message = Settings.get_value('welcome_message', 'Välkommen till 24c:s klasspelning!')
     
     # Get shows to display times dynamically
     shows = Show.query.order_by(Show.start_time).all()
@@ -80,6 +82,8 @@ def index():
                          adult_price=adult_price,
                          student_price=student_price,
                          concert_date=concert_date,
+                         concert_name=concert_name,
+                         welcome_message=welcome_message,
                          times_display=times_display)
 
 @public_bp.route('/booking')
