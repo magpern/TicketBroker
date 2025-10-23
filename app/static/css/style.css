@@ -744,11 +744,70 @@ tr.pending {
 
 .actions {
     white-space: nowrap;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 5px;
+    align-items: center;
 }
 
 .actions form {
-    display: inline;
-    margin-right: 5px;
+    display: inline-flex;
+    margin-right: 0;
+}
+
+.actions a {
+    display: inline-flex;
+    margin-right: 0;
+}
+
+/* Force horizontal layout for action buttons */
+.bookings-table .actions,
+.tickets-table .actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    gap: 5px !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+.bookings-table .actions form,
+.bookings-table .actions a,
+.tickets-table .actions form,
+.tickets-table .actions a {
+    display: inline-flex !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
+}
+
+.bookings-table .actions button,
+.tickets-table .actions button {
+    display: inline-block !important;
+    width: auto !important;
+    margin: 0 !important;
+}
+
+/* Nuclear option - force everything to be inline */
+.bookings-table td.actions *,
+.tickets-table td.actions * {
+    display: inline !important;
+    float: none !important;
+    clear: none !important;
+}
+
+.bookings-table td.actions {
+    display: block !important;
+    text-align: right !important;
+}
+
+.bookings-table td.actions form,
+.bookings-table td.actions a {
+    display: inline !important;
+    margin-right: 5px !important;
 }
 
 /* Settings */
@@ -918,11 +977,20 @@ tr.pending {
     
     .actions {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-end;
         gap: 5px;
+        align-items: center;
     }
     
     .actions form {
+        display: inline-flex;
+        margin-right: 0;
+    }
+    
+    .actions a {
+        display: inline-flex;
         margin-right: 0;
     }
 }

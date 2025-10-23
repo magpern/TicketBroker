@@ -257,6 +257,127 @@ def export_excel():
     
     return response
 
+@admin_bp.route('/revenue-report')
+@login_required
+def revenue_report():
+    """Generate comprehensive revenue report"""
+    bookings = Booking.query.order_by(Booking.created_at.desc()).all()
+    
+    wb = Workbook()
+    
+    # Summary sheet
+    ws_summary = wb.active
+    ws_summary.title = "Revenue Summary"
+    
+    # Calculate totals
+    total_bookings = len(bookings)
+    confirmed_bookings = [b for b in bookings if b.status == 'confirmed']
+    reserved_bookings = [b for b in bookings if b.status != 'confirmed']
+    
+    total_revenue = sum(b.total_amount for b in confirmed_bookings)
+    potential_revenue = sum(b.total_amount for b in reserved_bookings)
+    
+    # Summary data
+    summary_data = [
+        ['Revenue Report', f'Generated: {datetime.now().strftime("%Y-%m-%d %H:%M")}'],
+        [''],
+        ['SUMMARY'],
+        ['Total Bookings:', total_bookings],
+        ['Confirmed Bookings:', len(confirmed_bookings)],
+        ['Reserved Bookings:', len(reserved_bookings)],
+        [''],
+        ['REVENUE'],
+        ['Confirmed Revenue:', f'{total_revenue} kr'],
+        ['Potential Revenue:', f'{potential_revenue} kr'],
+        ['Total Potential:', f'{total_revenue + potential_revenue} kr'],
+        [''],
+        ['TICKET BREAKDOWN'],
+        ['Total Adult Tickets:', sum(b.adult_tickets for b in confirmed_bookings)],
+        ['Total Student Tickets:', sum(b.student_tickets for b in confirmed_bookings)],
+        ['Total Tickets Sold:', sum(b.adult_tickets + b.student_tickets for b in confirmed_bookings)],
+    ]
+    
+    for row, data in enumerate(summary_data, 1):
+        if len(data) == 2:
+            ws_summary.cell(row=row, column=1, value=data[0])
+            ws_summary.cell(row=row, column=2, value=data[1])
+        else:
+            ws_summary.cell(row=row, column=1, value=data[0])
+    
+    # Detailed bookings sheet
+    ws_details = wb.create_sheet("Detailed Bookings")
+    
+    # Headers
+    headers = ['Booking Ref', 'Name', 'Email', 'Phone', 'Show Time', 'Adult Tickets', 'Student Tickets', 'Total Amount', 'Status', 'Payment Confirmed', 'Created Date']
+    for col, header in enumerate(headers, 1):
+        ws_details.cell(row=1, column=col, value=header)
+    
+    # Data
+    for row, booking in enumerate(bookings, 2):
+        ws_details.cell(row=row, column=1, value=booking.booking_reference)
+        ws_details.cell(row=row, column=2, value=booking.full_name)
+        ws_details.cell(row=row, column=3, value=booking.email)
+        ws_details.cell(row=row, column=4, value=booking.phone)
+        ws_details.cell(row=row, column=5, value=f"{booking.show.start_time}-{booking.show.end_time}")
+        ws_details.cell(row=row, column=6, value=booking.adult_tickets)
+        ws_details.cell(row=row, column=7, value=booking.student_tickets)
+        ws_details.cell(row=row, column=8, value=booking.total_amount)
+        ws_details.cell(row=row, column=9, value=booking.status)
+        ws_details.cell(row=row, column=10, value='Yes' if booking.buyer_confirmed_payment else 'No')
+        ws_details.cell(row=row, column=11, value=booking.created_at.strftime('%Y-%m-%d %H:%M'))
+    
+    # Revenue by show sheet
+    ws_shows = wb.create_sheet("Revenue by Show")
+    
+    # Group by show
+    show_revenue = {}
+    for booking in bookings:
+        show_key = f"{booking.show.start_time}-{booking.show.end_time}"
+        if show_key not in show_revenue:
+            show_revenue[show_key] = {
+                'confirmed_revenue': 0,
+                'potential_revenue': 0,
+                'confirmed_bookings': 0,
+                'reserved_bookings': 0,
+                'total_tickets': 0
+            }
+        
+        if booking.status == 'confirmed':
+            show_revenue[show_key]['confirmed_revenue'] += booking.total_amount
+            show_revenue[show_key]['confirmed_bookings'] += 1
+        else:
+            show_revenue[show_key]['potential_revenue'] += booking.total_amount
+            show_revenue[show_key]['reserved_bookings'] += 1
+        
+        show_revenue[show_key]['total_tickets'] += booking.adult_tickets + booking.student_tickets
+    
+    # Show revenue headers
+    show_headers = ['Show Time', 'Confirmed Revenue', 'Potential Revenue', 'Total Revenue', 'Confirmed Bookings', 'Reserved Bookings', 'Total Tickets']
+    for col, header in enumerate(show_headers, 1):
+        ws_shows.cell(row=1, column=col, value=header)
+    
+    # Show revenue data
+    for row, (show_time, data) in enumerate(show_revenue.items(), 2):
+        ws_shows.cell(row=row, column=1, value=show_time)
+        ws_shows.cell(row=row, column=2, value=f"{data['confirmed_revenue']} kr")
+        ws_shows.cell(row=row, column=3, value=f"{data['potential_revenue']} kr")
+        ws_shows.cell(row=row, column=4, value=f"{data['confirmed_revenue'] + data['potential_revenue']} kr")
+        ws_shows.cell(row=row, column=5, value=data['confirmed_bookings'])
+        ws_shows.cell(row=row, column=6, value=data['reserved_bookings'])
+        ws_shows.cell(row=row, column=7, value=data['total_tickets'])
+    
+    # Save to BytesIO
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    
+    # Create response
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    response.headers['Content-Disposition'] = f'attachment; filename=revenue_report_{datetime.now().strftime("%Y%m%d")}.xlsx'
+    
+    return response
+
 @admin_bp.route('/shows')
 @login_required
 def manage_shows():

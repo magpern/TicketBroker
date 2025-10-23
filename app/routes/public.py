@@ -278,7 +278,7 @@ def booking_confirm():
         send_booking_confirmation(booking)
         
         flash('Tack! Du har reserverat dina biljetter. Glöm inte att swisha summan till 070 123 45 67 för att bekräfta din plats.', 'success')
-        return redirect(url_for('public.booking_success', booking_id=booking.id))
+        return redirect(url_for('public.booking_success', booking_reference=booking.booking_reference, email=booking.email))
         
     except Exception as e:
         db.session.rollback()
