@@ -90,8 +90,9 @@
 </div>
 
 <script>
-// Store booking ID for session recovery
-localStorage.setItem('pendingBooking', '{{ booking.id }}');
+// Store booking data for session recovery
+localStorage.setItem('pendingBookingRef', '{{ booking.booking_reference }}');
+localStorage.setItem('pendingBookingEmail', '{{ booking.email }}');
 
 // Handle Swish payment initiation
 document.getElementById('pay-now-btn')?.addEventListener('click', function() {
@@ -122,7 +123,8 @@ document.getElementById('pay-now-btn')?.addEventListener('click', function() {
 
 // Clear localStorage if payment is confirmed
 {% if booking.status == 'confirmed' or booking.buyer_confirmed_payment %}
-localStorage.removeItem('pendingBooking');
+localStorage.removeItem('pendingBookingRef');
+localStorage.removeItem('pendingBookingEmail');
 {% endif %}
 </script>
 {% endblock %}

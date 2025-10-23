@@ -266,9 +266,10 @@ if (window.innerWidth <= 768) {
 
 // Session recovery functionality
 function checkForPendingBooking() {
-    const pendingBookingId = localStorage.getItem('pendingBooking');
+    const pendingBookingRef = localStorage.getItem('pendingBookingRef');
+    const pendingBookingEmail = localStorage.getItem('pendingBookingEmail');
     
-    if (pendingBookingId && !window.location.pathname.includes('/booking/success/')) {
+    if (pendingBookingRef && pendingBookingEmail && !window.location.pathname.includes('/booking/success/')) {
         // Show a notification about pending booking
         const notification = document.createElement('div');
         notification.className = 'pending-booking-notification';
@@ -289,7 +290,7 @@ function checkForPendingBooking() {
             <h4>Pågående bokning</h4>
             <p>Du har en pågående bokning som väntar på betalning.</p>
             <div style="margin-top: 10px;">
-                <button onclick="resumeBooking('${pendingBookingId}')" 
+                <button onclick="resumeBooking('${pendingBookingRef}', '${pendingBookingEmail}')" 
                         style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-right: 10px;">
                     Fortsätt betalning
                 </button>
@@ -311,9 +312,9 @@ function checkForPendingBooking() {
     }
 }
 
-function resumeBooking(bookingId) {
-    // Redirect to booking success page
-    window.location.href = `/booking/success/${bookingId}`;
+function resumeBooking(bookingRef, email) {
+    // Redirect to booking success page with new URL format
+    window.location.href = `/booking/success/${bookingRef}/${email}`;
 }
 
 function dismissNotification(button) {
@@ -322,5 +323,6 @@ function dismissNotification(button) {
 
 // Clear pending booking when payment is confirmed
 function clearPendingBooking() {
-    localStorage.removeItem('pendingBooking');
+    localStorage.removeItem('pendingBookingRef');
+    localStorage.removeItem('pendingBookingEmail');
 }
