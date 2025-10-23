@@ -1,5 +1,5 @@
 from reportlab.lib.pagesizes import A4, letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak, KeepTogether
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
@@ -117,19 +117,17 @@ def generate_tickets_pdf(booking):
         
         # Generate tickets
         for i, ticket in enumerate(booking.tickets):
-            # Page break for each ticket (except first)
-            if i > 0:
-                story.append(Spacer(1, 0.5*inch))
-            
             print(f"Creating ticket {i+1}/{len(booking.tickets)}: {ticket.ticket_reference}")
             
             # Create ticket-like design
             ticket_data = create_ticket_design(ticket, booking, concert_name, concert_date, concert_venue, logo_data, i+1, len(booking.tickets))
-            story.extend(ticket_data)
             
-            # Page break after each ticket (except last)
+            # Wrap ticket elements in KeepTogether to prevent page breaks within a ticket
+            story.append(KeepTogether(ticket_data))
+            
+            # Add page break after each ticket (except the last one) to ensure each ticket starts on a new page
             if i < len(booking.tickets) - 1:
-                story.append(Spacer(1, 0.5*inch))
+                story.append(PageBreak())
         
         print("Building PDF document")
         doc.build(story)
