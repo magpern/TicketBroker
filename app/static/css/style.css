@@ -168,6 +168,85 @@ body::before {
     margin-top: 40px;
 }
 
+/* Compact concert info layout */
+.concert-info-compact {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 25px;
+    border-radius: 15px;
+    margin: 20px 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.concert-details h3, .pricing-compact h3 {
+    color: #dc2626;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+/* Prominent CTA section */
+.cta-prominent {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.8);
+    color: #dc2626;
+    padding: 30px;
+    border-radius: 20px;
+    margin: 30px 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 3px solid #dc2626;
+}
+
+.cta-text {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    font-weight: 500;
+    color: #dc2626;
+}
+
+.btn-large {
+    padding: 18px 40px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 30px;
+    background: #dc2626;
+    color: white;
+    border: 2px solid #dc2626;
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+}
+
+.btn-large:hover {
+    background: #b91c1c;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+}
+
+/* Sticky booking button */
+.sticky-booking-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: none; /* Hidden by default, shown on mobile */
+}
+
+.btn-sticky {
+    padding: 15px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 25px;
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4); }
+    50% { box-shadow: 0 6px 25px rgba(220, 38, 38, 0.6); }
+    100% { box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4); }
+}
+
 /* Buttons */
 .btn {
     display: inline-block;
@@ -739,6 +818,38 @@ tr.pending {
 
 /* Responsive design */
 @media (max-width: 768px) {
+    /* Show sticky button on mobile */
+    .sticky-booking-btn {
+        display: block;
+    }
+    
+    /* Make concert info single column on mobile */
+    .concert-info-compact {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    /* Adjust CTA text size on mobile */
+    .cta-text {
+        font-size: 1.1rem;
+    }
+    
+    /* Make large button smaller on mobile */
+    .btn-large {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+    }
+    
+    /* Adjust sticky button position */
+    .sticky-booking-btn {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    .btn-sticky {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
     .container {
         padding: 0 15px;
     }

@@ -10,11 +10,24 @@
         <h2>Välkommen till 24c:s klasspelning!</h2>
         <p>På den här sidan kan du boka biljetter. Glöm inte att anmälan är gjord först när både bokning och betalning är inne. Konserten är i Aulan på Rytmus Stockholm. Dörrarna öppnar 15 minuter innan konsertstart. Ses där!</p>
         
-        <div class="concert-info">
-            <h3>Konsertinformation</h3>
-            <p><strong>Datum:</strong> 29/1 2026</p>
-            <p><strong>Plats:</strong> Aulan på Rytmus Stockholm</p>
-            <p><strong>Tider:</strong> 17:45-18:45 eller 19:00-20:00</p>
+        <div class="concert-info-compact">
+            <div class="concert-details">
+                <h3>Konsertinformation</h3>
+                <p><strong>Datum:</strong> 29/1 2026</p>
+                <p><strong>Plats:</strong> Aulan på Rytmus Stockholm</p>
+                <p><strong>Tider:</strong> 17:45-18:45 eller 19:00-20:00</p>
+            </div>
+            
+            <div class="pricing-compact">
+                <h3>Priser</h3>
+                <p><strong>Ordinarie biljett:</strong> 200 kr</p>
+                <p><strong>Studentbiljett:</strong> 100 kr</p>
+            </div>
+        </div>
+        
+        <div class="cta-prominent">
+            <p class="cta-text">🎟️ <strong>Redo att boka?</strong> Välj din tid och säkra din plats nu!</p>
+            <a href="{{ url_for('public.booking') }}" class="btn btn-primary btn-large">Boka biljetter nu</a>
         </div>
         
         <div class="booking-instructions">
@@ -28,19 +41,14 @@
             </ol>
         </div>
         
-        <div class="pricing">
-            <h3>Priser</h3>
-            <p><strong>Ordinarie biljett:</strong> 200 kr</p>
-            <p><strong>Studentbiljett:</strong> 100 kr</p>
-        </div>
-        
         <div class="swish-reminder">
             <p><strong>OBS!</strong> Du har reserverat en plats först när du BÅDE har reserverat en biljett här på hemsidan - och du har swishat summan till <strong>{{ swish_recipient_name }}</strong>.</p>
         </div>
-        
-        <div class="cta-section">
-            <a href="{{ url_for('public.booking') }}" class="btn btn-primary">Boka biljetter</a>
-        </div>
     </div>
+</div>
+
+<!-- Sticky booking button -->
+<div class="sticky-booking-btn">
+    <a href="{{ url_for('public.booking') }}" class="btn btn-primary btn-sticky">Boka biljetter</a>
 </div>
 {% endblock %}
