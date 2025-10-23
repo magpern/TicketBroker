@@ -1,9 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, make_response
 from app.models import Show, Booking, Settings
 from app import db
 from app.utils.audit import log_booking_created, log_payment_initiated, log_buyer_confirmed_payment
 from datetime import datetime
 import re
+import qrcode
+import io
+import base64
 
 public_bp = Blueprint('public', __name__)
 
@@ -15,6 +18,41 @@ def generate_swish_url(phone, amount, booking_ref):
     # Format: https://app.swish.nu/1/p/sw/?sw=PHONE&amt=AMOUNT&cur=SEK&msg=REF&src=qr
     url = f"https://app.swish.nu/1/p/sw/?sw={clean_phone}&amt={amount}&cur=SEK&msg={booking_ref}&src=qr"
     return url
+
+def is_mobile_device(user_agent):
+    """Detect if the user is on a mobile device"""
+    mobile_indicators = [
+        'Mobile', 'Android', 'iPhone', 'iPad', 'iPod', 
+        'BlackBerry', 'Windows Phone', 'Opera Mini'
+    ]
+    user_agent_lower = user_agent.lower()
+    return any(indicator.lower() in user_agent_lower for indicator in mobile_indicators)
+
+def generate_swish_qr_code(phone, amount, booking_ref):
+    """Generate QR code for Swish payment"""
+    # Create Swish payment URL
+    swish_url = generate_swish_url(phone, amount, booking_ref)
+    
+    # Generate QR code
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(swish_url)
+    qr.make(fit=True)
+    
+    # Create QR code image
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Convert to base64 string
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    img_base64 = base64.b64encode(buffer.getvalue()).decode()
+    
+    return f"data:image/png;base64,{img_base64}"
 
 @public_bp.route('/')
 def index():
@@ -206,10 +244,21 @@ def booking_success(booking_id):
     swish_number = Settings.get_value('swish_number', '070 123 45 67')
     swish_recipient_name = Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand')
     
+    # Detect if user is on mobile device
+    user_agent = request.headers.get('User-Agent', '')
+    is_mobile = is_mobile_device(user_agent)
+    
+    # Generate QR code for desktop users
+    qr_code_data = None
+    if not is_mobile:
+        qr_code_data = generate_swish_qr_code(swish_number, booking.total_amount, booking.booking_reference)
+    
     return render_template('booking_success.html', 
                          booking=booking,
                          swish_number=swish_number,
-                         swish_recipient_name=swish_recipient_name)
+                         swish_recipient_name=swish_recipient_name,
+                         is_mobile=is_mobile,
+                         qr_code_data=qr_code_data)
 
 @public_bp.route('/booking/initiate-payment/<int:booking_id>', methods=['POST'])
 def initiate_payment(booking_id):
@@ -232,9 +281,14 @@ def initiate_payment(booking_id):
     swish_number = Settings.get_value('swish_number', '070 123 45 67')
     swish_url = generate_swish_url(swish_number, booking.total_amount, booking.booking_reference)
     
+    # Detect if user is on mobile device
+    user_agent = request.headers.get('User-Agent', '')
+    is_mobile = is_mobile_device(user_agent)
+    
     return jsonify({
         'success': True,
         'swish_url': swish_url,
+        'is_mobile': is_mobile,
         'message': 'Swish-betalning initierad'
     })
 

@@ -6,6 +6,12 @@
 <div class="admin-container">
     <div class="admin-header">
         <h2>Biljetthantering</h2>
+        {% if booking_ref %}
+        <div class="filter-info">
+            <span class="filter-badge">Filtrerat på bokning: <strong>{{ booking_ref }}</strong></span>
+            <a href="{{ url_for('admin.tickets') }}" class="btn btn-small btn-secondary">Rensa filter</a>
+        </div>
+        {% endif %}
         <div class="admin-actions">
             <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">← Tillbaka till dashboard</a>
             <a href="{{ url_for('admin.check_ticket') }}" class="btn btn-primary">Kontrollera biljett</a>

@@ -48,7 +48,20 @@ def logout():
 @login_required
 def dashboard():
     """Admin dashboard with all bookings"""
-    bookings = Booking.query.order_by(Booking.created_at.desc()).all()
+    # Get filter parameter
+    filter_unconfirmed = request.args.get('unconfirmed', type=bool)
+    
+    # Build query
+    query = Booking.query
+    
+    if filter_unconfirmed:
+        # Show only unconfirmed payments (reserved status or buyer confirmed but not admin confirmed)
+        query = query.filter(
+            (Booking.status == 'reserved') | 
+            (Booking.buyer_confirmed_payment == True) & (Booking.status != 'confirmed')
+        )
+    
+    bookings = query.order_by(Booking.created_at.desc()).all()
     
     # Group bookings by show
     bookings_by_show = {}
@@ -58,7 +71,9 @@ def dashboard():
             bookings_by_show[show_key] = []
         bookings_by_show[show_key].append(booking)
     
-    return render_template('admin/dashboard.html', bookings_by_show=bookings_by_show)
+    return render_template('admin/dashboard.html', 
+                         bookings_by_show=bookings_by_show,
+                         filter_unconfirmed=filter_unconfirmed)
 
 @admin_bp.route('/settings')
 @login_required
@@ -229,6 +244,55 @@ def create_show():
     
     return redirect(url_for('admin.manage_shows'))
 
+@admin_bp.route('/shows/<int:show_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_show(show_id):
+    """Edit show"""
+    show = Show.query.get_or_404(show_id)
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            new_total_tickets = int(request.form.get('total_tickets'))
+            new_available_tickets = int(request.form.get('available_tickets'))
+            
+            # Validation
+            if new_total_tickets < 0:
+                flash('Totalt antal biljetter kan inte vara negativt.', 'error')
+                return render_template('admin/edit_show.html', show=show)
+            
+            if new_available_tickets < 0:
+                flash('Tillgängliga biljetter kan inte vara negativa.', 'error')
+                return render_template('admin/edit_show.html', show=show)
+            
+            if new_available_tickets > new_total_tickets:
+                flash('Tillgängliga biljetter kan inte vara fler än totalt antal biljetter.', 'error')
+                return render_template('admin/edit_show.html', show=show)
+            
+            # Calculate how many tickets are currently booked
+            confirmed_bookings = [b for b in show.bookings if b.status == 'confirmed']
+            total_booked = sum(b.total_tickets for b in confirmed_bookings)
+            
+            # Check if we're trying to set available tickets too low
+            if new_available_tickets < total_booked:
+                flash(f'Kan inte sätta tillgängliga biljetter till {new_available_tickets}. Det finns redan {total_booked} bekräftade biljetter.', 'error')
+                return render_template('admin/edit_show.html', show=show)
+            
+            # Update show
+            show.total_tickets = new_total_tickets
+            show.available_tickets = new_available_tickets
+            
+            db.session.commit()
+            flash('Föreställning uppdaterad!', 'success')
+            return redirect(url_for('admin.manage_shows'))
+            
+        except ValueError:
+            flash('Ogiltiga värden. Ange endast siffror.', 'error')
+        except Exception as e:
+            flash('Ett fel uppstod vid uppdatering.', 'error')
+    
+    return render_template('admin/edit_show.html', show=show)
+
 @admin_bp.route('/shows/<int:show_id>/delete', methods=['POST'])
 @login_required
 def delete_show(show_id):
@@ -255,6 +319,7 @@ def tickets():
     show_id = request.args.get('show_id', type=int)
     used_filter = request.args.get('used')
     search = request.args.get('search', '')
+    booking_ref = request.args.get('booking_ref', '')
     
     query = Ticket.query
     
@@ -265,6 +330,9 @@ def tickets():
         query = query.filter_by(is_used=True)
     elif used_filter == 'unused':
         query = query.filter_by(is_used=False)
+    
+    if booking_ref:
+        query = query.join(Booking).filter(Booking.booking_reference == booking_ref)
     
     if search:
         query = query.join(Booking).filter(
@@ -277,8 +345,8 @@ def tickets():
     tickets = query.order_by(Ticket.created_at.desc()).all()
     shows = Show.query.all()
     
-    return render_template('admin/tickets.html', tickets=tickets, shows=shows, 
-                         selected_show=show_id, used_filter=used_filter, search=search)
+    return render_template('admin/tickets.html', tickets=tickets, shows=shows,
+                         selected_show=show_id, used_filter=used_filter, search=search, booking_ref=booking_ref)
 
 @admin_bp.route('/ticket/<int:ticket_id>/delete', methods=['POST'])
 @login_required

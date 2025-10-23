@@ -56,9 +56,6 @@ def generate_tickets_for_booking(booking):
         db.session.add(ticket)
         tickets.append(ticket)
         
-        # Log ticket generation
-        log_ticket_generated(ticket, booking)
-        
         ticket_number += 1
     
     # Generate student tickets
@@ -81,12 +78,14 @@ def generate_tickets_for_booking(booking):
         db.session.add(ticket)
         tickets.append(ticket)
         
-        # Log ticket generation
-        log_ticket_generated(ticket, booking)
-        
         ticket_number += 1
     
     db.session.commit()
+    
+    # Log ticket generation after commit (when tickets have IDs)
+    for ticket in tickets:
+        log_ticket_generated(ticket, booking)
+    
     return tickets
 
 def delete_ticket(ticket, admin_user, reason=None):

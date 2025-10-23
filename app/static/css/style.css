@@ -813,6 +813,181 @@ tr.pending {
     }
 }
 
+/* Edit show page styles */
+.edit-show-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.show-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-left: 4px solid #dc3545;
+}
+
+.info-display {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.info-row {
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.edit-show-form {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.form-help {
+    display: block;
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 5px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.bookings-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.bookings-warning h4 {
+    color: #856404;
+    margin-bottom: 15px;
+}
+
+.bookings-warning p {
+    color: #856404;
+    margin-bottom: 10px;
+}
+
+.bookings-warning ul {
+    color: #856404;
+    margin-left: 20px;
+}
+
+.bookings-warning li {
+    margin-bottom: 5px;
+}
+
+/* Ticket count link styling */
+.ticket-count-link {
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.ticket-count-link:hover {
+    background-color: #dc3545;
+    color: white;
+    text-decoration: none;
+}
+
+/* Filter info styling */
+.filter-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background: #e3f2fd;
+    border-radius: 6px;
+    border-left: 4px solid #2196f3;
+}
+
+.filter-badge {
+    color: #1976d2;
+    font-size: 0.9rem;
+}
+
+/* Admin dashboard table optimization */
+.bookings-table table {
+    border-collapse: collapse;
+}
+
+.bookings-table td {
+    padding: 8px 12px;
+    vertical-align: middle;
+}
+
+.bookings-table th {
+    padding: 10px 12px;
+}
+
+.bookings-table tr {
+    height: auto;
+    min-height: 40px;
+}
+
+/* Quick filters styling */
+.bookings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.quick-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-active {
+    background: #fff3cd;
+    color: #856404;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #ffeaa7;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 4px;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #212529;
+    border: 1px solid #ffc107;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    color: #212529;
+}
+
 /* Enhanced ticket booking system styles */
 
 /* Booking reference display */
@@ -837,6 +1012,56 @@ tr.pending {
     color: #dc3545;
     font-weight: bold;
     margin: 10px 0 0 0;
+}
+
+.payment-action-inline {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dc3545;
+}
+
+.payment-action-inline .btn-large {
+    margin-bottom: 10px;
+}
+
+.payment-action-inline .payment-note {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+.qr-code-section {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.payment-instruction {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.qr-code-container {
+    margin: 20px 0;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    border: 2px solid #dc3545;
+    display: inline-block;
+}
+
+.qr-code {
+    max-width: 200px;
+    height: auto;
+    display: block;
+}
+
+.qr-instruction {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 15px;
+    font-style: italic;
 }
 
 /* Payment section */

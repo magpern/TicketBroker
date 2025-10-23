@@ -18,7 +18,17 @@
     </div>
     
     <div class="bookings-section">
-        <h3>Alla bokningar</h3>
+        <div class="bookings-header">
+            <h3>Alla bokningar</h3>
+            <div class="quick-filters">
+                {% if filter_unconfirmed %}
+                <span class="filter-active">Visa: Obekräftade betalningar</span>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-small btn-secondary">Visa alla</a>
+                {% else %}
+                <a href="{{ url_for('admin.dashboard', unconfirmed=True) }}" class="btn btn-small btn-warning">Visa obekräftade betalningar</a>
+                {% endif %}
+            </div>
+        </div>
         
         {% for show_time, bookings in bookings_by_show.items() %}
         <div class="show-group">
@@ -46,9 +56,6 @@
                         <tr class="{% if booking.status == 'confirmed' %}confirmed{% elif booking.buyer_confirmed_payment %}pending{% endif %}">
                             <td>
                                 <strong>{{ booking.booking_reference }}</strong>
-                                {% if booking.swish_payment_initiated %}
-                                    <br><small>Swish initierad: {{ booking.swish_payment_initiated_at.strftime('%H:%M') if booking.swish_payment_initiated_at }}</small>
-                                {% endif %}
                             </td>
                             <td>{{ booking.full_name }}</td>
                             <td>{{ booking.email }}</td>
@@ -67,13 +74,9 @@
                             </td>
                             <td>
                                 {% if booking.tickets %}
-                                    <span class="ticket-count">{{ booking.tickets|length }} biljetter</span>
-                                    <br><small>
-                                        {% for ticket in booking.tickets[:3] %}
-                                            {{ ticket.ticket_reference }}{% if not loop.last %}, {% endif %}
-                                        {% endfor %}
-                                        {% if booking.tickets|length > 3 %}...{% endif %}
-                                    </small>
+                                    <a href="{{ url_for('admin.tickets', booking_ref=booking.booking_reference) }}" class="ticket-count-link">
+                                        {{ booking.tickets|length }} biljetter
+                                    </a>
                                 {% else %}
                                     <span class="no-tickets">Inga biljetter</span>
                                 {% endif %}

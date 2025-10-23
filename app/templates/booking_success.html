@@ -8,6 +8,37 @@
             <h3>Din bokningsreferens:</h3>
             <div class="reference-code">{{ booking.booking_reference }}</div>
             <p class="reference-warning">Spara denna referens! Du behöver den för att bekräfta din betalning.</p>
+            
+            {% if booking.status != 'confirmed' and not booking.buyer_confirmed_payment %}
+            <div class="payment-action-inline">
+                {% if not booking.swish_payment_initiated %}
+                <button id="pay-now-btn" class="btn btn-primary btn-large">Betala nu</button>
+                {% if is_mobile %}
+                <p class="payment-note">Klicka för att öppna Swish-appen</p>
+                {% else %}
+                <p class="payment-note">Klicka för att visa QR-kod</p>
+                {% endif %}
+                {% else %}
+                <div class="payment-initiated">
+                    <p class="status-initiated">✓ Swish-betalning initierad</p>
+                    {% if is_mobile %}
+                    <p class="payment-instruction">Öppna Swish-appen och betala {{ booking.total_amount }} kr till {{ swish_recipient_name }} ({{ swish_number }}) med meddelandet {{ booking.booking_reference }}</p>
+                    {% else %}
+                    <div class="qr-code-section">
+                        <p class="payment-instruction">Skanna QR-koden med din telefon för att betala {{ booking.total_amount }} kr till {{ swish_recipient_name }}</p>
+                        <div class="qr-code-container">
+                            <img src="{{ qr_code_data }}" alt="Swish QR-kod" class="qr-code">
+                        </div>
+                        <p class="qr-instruction">Eller betala manuellt till {{ swish_number }} med meddelandet {{ booking.booking_reference }}</p>
+                    </div>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('public.confirm_payment', booking_id=booking.id) }}">
+                        <button type="submit" class="btn btn-success">Tryck här när du betalat med Swish</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
     
@@ -50,20 +81,6 @@
             <p><strong>Belopp:</strong> {{ booking.total_amount }} kr</p>
             <p><strong>Meddelande:</strong> {{ booking.booking_reference }}</p>
         </div>
-        
-        {% if not booking.swish_payment_initiated %}
-        <div class="payment-buttons">
-            <button id="pay-now-btn" class="btn btn-primary btn-large">Betala nu</button>
-            <p class="payment-note">Klicka för att öppna Swish-appen</p>
-        </div>
-        {% else %}
-        <div class="payment-initiated">
-            <p class="status-initiated">✓ Swish-betalning initierad</p>
-            <form method="POST" action="{{ url_for('public.confirm_payment', booking_id=booking.id) }}">
-                <button type="submit" class="btn btn-success">Jag har betalat via Swish</button>
-            </form>
-        </div>
-        {% endif %}
     </div>
     {% endif %}
     
@@ -87,16 +104,14 @@ document.getElementById('pay-now-btn')?.addEventListener('click', function() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Open Swish app/website
-            window.open(data.swish_url, '_blank');
-            
-            // Show confirmation button
-            this.parentElement.innerHTML = `
-                <p class="status-initiated">✓ Swish-betalning initierad</p>
-                <form method="POST" action="{{ url_for('public.confirm_payment', booking_id=booking.id) }}">
-                    <button type="submit" class="btn btn-success">Jag har betalat via Swish</button>
-                </form>
-            `;
+            if (data.is_mobile) {
+                // Mobile: Open Swish app/website
+                window.open(data.swish_url, '_blank');
+            } else {
+                // Desktop: Show QR code (already generated server-side)
+                // The page will reload to show the QR code
+                window.location.reload();
+            }
         }
     })
     .catch(error => {
