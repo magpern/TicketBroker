@@ -27,6 +27,19 @@
             </div>
             
             <div class="settings-group">
+                <h3>Biljettyper</h3>
+                <div class="form-group">
+                    <label for="adult_ticket_label">Ordinarie biljett - etikett</label>
+                    <input type="text" id="adult_ticket_label" name="adult_ticket_label" value="{{ settings.get('adult_ticket_label', 'Ordinarie biljett') }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="student_ticket_label">Studentbiljett - etikett</label>
+                    <input type="text" id="student_ticket_label" name="student_ticket_label" value="{{ settings.get('student_ticket_label', 'Studentbiljett') }}" required>
+                </div>
+            </div>
+            
+            <div class="settings-group">
                 <h3>Kontaktinformation</h3>
                 <div class="form-group">
                     <label for="swish_number">Swish-nummer</label>

@@ -25,8 +25,8 @@ function initTicketCounters() {
     if (!adultInput || !studentInput) return;
     
     // Adult ticket price (from settings, fallback to 200)
-    const adultPrice = 200;
-    const studentPrice = 100;
+    const adultPrice = window.bookingPrices ? window.bookingPrices.adult : 200;
+    const studentPrice = window.bookingPrices ? window.bookingPrices.student : 100;
     
     function updateTotal() {
         const adultTickets = parseInt(adultInput.value) || 0;

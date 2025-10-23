@@ -83,8 +83,15 @@
                             </td>
                             <td class="actions">
                                 {% if booking.status != 'confirmed' %}
+                                    <form method="POST" action="{{ url_for('admin.resend_confirmation', booking_id=booking.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-small btn-primary">Skicka om bekräftelse</button>
+                                    </form>
                                     <form method="POST" action="{{ url_for('admin.confirm_payment', booking_id=booking.id) }}" style="display: inline;">
                                         <button type="submit" class="btn btn-small btn-success">Bekräfta betalning</button>
+                                    </form>
+                                {% else %}
+                                    <form method="POST" action="{{ url_for('admin.resend_tickets', booking_id=booking.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-small btn-info">Skicka om biljetter</button>
                                     </form>
                                 {% endif %}
                                 <a href="{{ url_for('admin.edit_booking', booking_id=booking.id) }}" class="btn btn-small btn-secondary">Redigera</a>

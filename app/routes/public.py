@@ -122,7 +122,17 @@ def booking_tickets():
             flash('Tyvärr är biljetterna slut till den här spelningen.', 'error')
             return redirect(url_for('public.booking'))
         
+        # Get dynamic prices and labels from settings
+        adult_price = int(Settings.get_value('adult_price', '200'))
+        student_price = int(Settings.get_value('student_price', '100'))
+        adult_label = Settings.get_value('adult_ticket_label', 'Ordinarie biljett')
+        student_label = Settings.get_value('student_ticket_label', 'Studentbiljett')
+        
         return render_template('booking.html', step=2, show=show, 
+                             adult_price=adult_price,
+                             student_price=student_price,
+                             adult_label=adult_label,
+                             student_label=student_label,
                              swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
                              concert_date=Settings.get_value('concert_date', '29/1 2026'))
     
@@ -131,7 +141,18 @@ def booking_tickets():
         return redirect(url_for('public.booking'))
     
     show = Show.query.get_or_404(session['show_id'])
+    
+    # Get dynamic prices and labels from settings
+    adult_price = int(Settings.get_value('adult_price', '200'))
+    student_price = int(Settings.get_value('student_price', '100'))
+    adult_label = Settings.get_value('adult_ticket_label', 'Ordinarie biljett')
+    student_label = Settings.get_value('student_ticket_label', 'Studentbiljett')
+    
     return render_template('booking.html', step=2, show=show, 
+                         adult_price=adult_price,
+                         student_price=student_price,
+                         adult_label=adult_label,
+                         student_label=student_label,
                          swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
                          concert_date=Settings.get_value('concert_date', '29/1 2026'))
 
@@ -156,12 +177,16 @@ def booking_contact():
         # Calculate total amount
         adult_price = int(Settings.get_value('adult_price', '200'))
         student_price = int(Settings.get_value('student_price', '100'))
+        adult_label = Settings.get_value('adult_ticket_label', 'Ordinarie biljett')
+        student_label = Settings.get_value('student_ticket_label', 'Studentbiljett')
         total_amount = (adult_tickets * adult_price) + (student_tickets * student_price)
         session['total_amount'] = total_amount
         
         return render_template('booking.html', step=3, 
                              adult_tickets=adult_tickets, 
                              student_tickets=student_tickets,
+                             adult_label=adult_label,
+                             student_label=student_label,
                              total_amount=total_amount,
                              swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
                              concert_date=Settings.get_value('concert_date', '29/1 2026'))
@@ -260,10 +285,10 @@ def booking_confirm():
         flash('Ett fel uppstod. Försök igen.', 'error')
         return redirect(url_for('public.booking_contact'))
 
-@public_bp.route('/booking/success/<int:booking_id>')
-def booking_success(booking_id):
+@public_bp.route('/booking/success/<booking_reference>/<email>')
+def booking_success(booking_reference, email):
     """Success page with payment confirmation option"""
-    booking = Booking.query.get_or_404(booking_id)
+    booking = Booking.query.filter_by(booking_reference=booking_reference, email=email.lower()).first_or_404()
     
     # Get Swish settings
     swish_number = Settings.get_value('swish_number', '070 123 45 67')
@@ -285,14 +310,14 @@ def booking_success(booking_id):
                          is_mobile=is_mobile,
                          qr_code_data=qr_code_data)
 
-@public_bp.route('/booking/initiate-payment/<int:booking_id>', methods=['POST'])
-def initiate_payment(booking_id):
+@public_bp.route('/booking/initiate-payment/<booking_reference>/<email>', methods=['POST'])
+def initiate_payment(booking_reference, email):
     """Initiate Swish payment and log the action"""
-    booking = Booking.query.get_or_404(booking_id)
+    booking = Booking.query.filter_by(booking_reference=booking_reference, email=email.lower()).first_or_404()
     
     if booking.status == 'confirmed':
         flash('Betalningen är redan bekräftad.', 'info')
-        return redirect(url_for('public.booking_success', booking_id=booking_id))
+        return redirect(url_for('public.booking_success', booking_reference=booking_reference, email=email))
     
     # Mark payment as initiated
     booking.swish_payment_initiated = True
@@ -317,14 +342,14 @@ def initiate_payment(booking_id):
         'message': 'Swish-betalning initierad'
     })
 
-@public_bp.route('/booking/confirm-payment/<int:booking_id>', methods=['POST'])
-def confirm_payment(booking_id):
+@public_bp.route('/booking/confirm-payment/<booking_reference>/<email>', methods=['POST'])
+def confirm_payment(booking_reference, email):
     """Buyer confirms they have paid via Swish"""
-    booking = Booking.query.get_or_404(booking_id)
+    booking = Booking.query.filter_by(booking_reference=booking_reference, email=email.lower()).first_or_404()
     
     if booking.status == 'confirmed':
         flash('Betalningen är redan bekräftad.', 'info')
-        return redirect(url_for('public.booking_success', booking_id=booking_id))
+        return redirect(url_for('public.booking_success', booking_reference=booking_reference, email=email))
     
     booking.buyer_confirmed_payment = True
     db.session.commit()
@@ -337,7 +362,7 @@ def confirm_payment(booking_id):
     send_admin_notification(booking)
     
     flash('Tack! Vi har fått din bekräftelse. Administratören kommer att kontrollera betalningen.', 'success')
-    return redirect(url_for('public.booking_success', booking_id=booking_id))
+    return redirect(url_for('public.booking_success', booking_reference=booking_reference, email=email))
 
 @public_bp.route('/api/check-availability')
 def check_availability():
@@ -404,7 +429,7 @@ def find_booking():
         if bookings:
             if len(bookings) == 1:
                 # Single booking - redirect directly
-                return redirect(url_for('public.booking_success', booking_id=bookings[0].id))
+                return redirect(url_for('public.booking_success', booking_reference=bookings[0].booking_reference, email=bookings[0].email))
             else:
                 # Multiple bookings - show selection page
                 return render_template('booking_selection.html', bookings=bookings)

@@ -135,7 +135,15 @@ def confirm_payment(booking_id):
     log_payment_confirmed(booking, 'admin')
     
     # Send confirmation email to buyer
-    send_payment_confirmed(booking)
+    try:
+        from app.utils.email import send_payment_confirmed
+        email_sent = send_payment_confirmed(booking)
+        if email_sent:
+            flash(f'Biljetter skickade till {booking.email}!', 'success')
+        else:
+            flash('Biljetter genererade men e-post kunde inte skickas.', 'warning')
+    except Exception as e:
+        flash(f'Biljetter genererade men fel vid e-postssändning: {str(e)}', 'warning')
     
     return redirect(url_for('admin.dashboard'))
 
@@ -178,6 +186,33 @@ def delete_booking(booking_id):
         flash(f'Bokning för {booking.full_name} har raderats.', 'success')
     except Exception as e:
         flash('Ett fel uppstod vid radering.', 'error')
+    
+    return redirect(url_for('admin.dashboard'))
+
+@admin_bp.route('/booking/<int:booking_id>/resend-tickets', methods=['POST'])
+@login_required
+def resend_tickets(booking_id):
+    """Resend tickets to user"""
+    booking = Booking.query.get_or_404(booking_id)
+    
+    if booking.status != 'confirmed':
+        flash('Kan endast skicka om biljetter för bekräftade bokningar.', 'error')
+        return redirect(url_for('admin.dashboard'))
+    
+    if not booking.tickets:
+        flash('Inga biljetter att skicka om.', 'error')
+        return redirect(url_for('admin.dashboard'))
+    
+    try:
+        from app.utils.email import send_payment_confirmed
+        success = send_payment_confirmed(booking)
+        
+        if success:
+            flash(f'Biljetter skickade om till {booking.full_name}!', 'success')
+        else:
+            flash('Ett fel uppstod vid omssändning av biljetter.', 'error')
+    except Exception as e:
+        flash(f'Ett fel uppstod: {str(e)}', 'error')
     
     return redirect(url_for('admin.dashboard'))
 
@@ -387,20 +422,63 @@ def check_ticket():
             flash(f'Biljett {ticket_ref} hittades inte.', 'error')
             return render_template('admin/check_ticket.html', concert_name=get_concert_name())
         
-        if ticket.is_used:
-            flash(f'Biljett {ticket_ref} är redan använd.', 'warning')
-            return render_template('admin/check_ticket.html', ticket=ticket, concert_name=get_concert_name())
-        
-        # Mark as used
+        # Toggle ticket state
         try:
-            mark_ticket_as_used(ticket, 'admin')
-            flash(f'Biljett {ticket_ref} markerad som använd!', 'success')
+            from app.utils.tickets import change_ticket_state
+            change_ticket_state(ticket, 'admin')
+            
+            if ticket.is_used:
+                flash(f'Biljett {ticket_ref} markerad som använd!', 'success')
+            else:
+                flash(f'Biljett {ticket_ref} återställd till oanvänd!', 'success')
         except Exception as e:
             flash(f'Ett fel uppstod: {str(e)}', 'error')
         
         return render_template('admin/check_ticket.html', ticket=ticket, concert_name=get_concert_name())
     
     return render_template('admin/check_ticket.html', concert_name=get_concert_name())
+
+@admin_bp.route('/ticket/<int:ticket_id>/toggle-state', methods=['POST'])
+@login_required
+def toggle_ticket_state(ticket_id):
+    """Toggle ticket state (used/unused)"""
+    ticket = Ticket.query.get_or_404(ticket_id)
+    
+    try:
+        from app.utils.tickets import change_ticket_state
+        change_ticket_state(ticket, 'admin')
+        
+        if ticket.is_used:
+            flash(f'Biljett {ticket.ticket_reference} markerad som använd!', 'success')
+        else:
+            flash(f'Biljett {ticket.ticket_reference} återställd till oanvänd!', 'success')
+    except Exception as e:
+        flash(f'Ett fel uppstod: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.tickets'))
+
+@admin_bp.route('/booking/<int:booking_id>/resend-confirmation', methods=['POST'])
+@login_required
+def resend_confirmation(booking_id):
+    """Resend booking confirmation email to remind user to pay"""
+    booking = Booking.query.get_or_404(booking_id)
+
+    if booking.status == 'confirmed':
+        flash('Kan endast skicka om bekräftelse för obekräftade bokningar.', 'error')
+        return redirect(url_for('admin.dashboard'))
+
+    try:
+        from app.utils.email import send_booking_confirmation
+        success = send_booking_confirmation(booking)
+
+        if success:
+            flash(f'Bekräftelse skickad om till {booking.full_name}!', 'success')
+        else:
+            flash('Ett fel uppstod vid omssändning av bekräftelse.', 'error')
+    except Exception as e:
+        flash(f'Ett fel uppstod: {str(e)}', 'error')
+
+    return redirect(url_for('admin.dashboard'))
 
 @admin_bp.route('/audit')
 @login_required

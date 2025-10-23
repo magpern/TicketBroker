@@ -310,6 +310,16 @@ body::before {
     transform: translateY(-2px);
 }
 
+.btn-info {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+}
+
 .btn-small {
     padding: 8px 16px;
     font-size: 0.9rem;
@@ -1073,6 +1083,34 @@ tr.pending {
     min-height: 40px;
 }
 
+/* Sticky columns for admin dashboard */
+.bookings-table th:nth-child(1),
+.bookings-table td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 10;
+    border-right: 2px solid #e5e7eb;
+}
+
+/* Ensure sticky column has proper background for different row states */
+.bookings-table tr.confirmed td:nth-child(1) {
+    background: #f0f9ff;
+}
+
+.bookings-table tr.pending td:nth-child(1) {
+    background: #fef3c7;
+}
+
+.bookings-table tr.reserved td:nth-child(1) {
+    background: #f3f4f6;
+}
+
+/* Responsive adjustments for sticky columns */
+@media (max-width: 768px) {
+    /* No responsive adjustments needed for single sticky column */
+}
+
 /* Quick filters styling */
 .bookings-header {
     display: flex;
@@ -1277,6 +1315,13 @@ tr.pending {
 }
 
 /* Tickets table */
+.tickets-table {
+    overflow-x: auto;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
 .tickets-table table {
     width: 100%;
     border-collapse: collapse;
@@ -1301,6 +1346,25 @@ tr.pending {
 }
 
 .tickets-table tr.unused {
+    background: #fff;
+}
+
+/* Sticky columns for tickets table */
+.tickets-table th:nth-child(1),
+.tickets-table td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    background: #f8f9fa;
+    z-index: 10;
+    border-right: 2px solid #e5e7eb;
+}
+
+/* Ensure sticky column has proper background for different row states */
+.tickets-table tr.used td:nth-child(1) {
+    background: #f8f9fa;
+}
+
+.tickets-table tr.unused td:nth-child(1) {
     background: #fff;
 }
 

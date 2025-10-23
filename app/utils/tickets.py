@@ -1,5 +1,5 @@
 from app.models import Ticket, Buyer, Booking, db
-from app.utils.audit import log_ticket_generated
+from app.utils.audit import log_ticket_generated, log_ticket_used, log_ticket_state_change
 from datetime import datetime
 
 def create_or_update_buyer(booking):
@@ -135,5 +135,27 @@ def mark_ticket_as_used(ticket, checker_user):
     
     # Log the usage
     log_ticket_used(ticket, checker_user)
+    
+    return True
+
+def change_ticket_state(ticket, checker_user):
+    """Toggle ticket state between used and unused"""
+    if ticket.is_used:
+        # Reset to unused
+        ticket.is_used = False
+        ticket.used_at = None
+        ticket.checked_by = None
+        action = "reset_to_unused"
+    else:
+        # Mark as used
+        ticket.is_used = True
+        ticket.used_at = datetime.utcnow()
+        ticket.checked_by = checker_user
+        action = "marked_as_used"
+    
+    db.session.commit()
+    
+    # Log the state change
+    log_ticket_state_change(ticket, checker_user, action)
     
     return True

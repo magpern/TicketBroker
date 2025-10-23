@@ -45,7 +45,7 @@
                 </div>
                 
                 <div class="booking-actions" style="text-align: center;">
-                    <a href="{{ url_for('public.booking_success', booking_id=booking.id) }}" 
+                    <a href="{{ url_for('public.booking_success', booking_reference=booking.booking_reference, email=booking.email) }}" 
                        class="btn btn-primary" 
                        style="margin-right: 10px;">
                         {% if booking.status == 'confirmed' %}

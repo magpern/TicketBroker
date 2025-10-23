@@ -148,3 +148,20 @@ def log_buyer_confirmed_payment(booking):
         user_identifier=booking.phone,
         details=details
     )
+
+def log_ticket_state_change(ticket, checker_user, action):
+    """Log when a ticket state is changed (used/unused)"""
+    details = {
+        'ticket_reference': ticket.ticket_reference,
+        'action': action,
+        'new_state': 'used' if ticket.is_used else 'unused',
+        'changed_at': ticket.used_at.isoformat() if ticket.used_at else None
+    }
+    return log_audit_event(
+        action_type='ticket_state_changed',
+        entity_type='ticket',
+        entity_id=ticket.id,
+        user_type='admin',
+        user_identifier=checker_user,
+        details=details
+    )

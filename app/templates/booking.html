@@ -49,7 +49,7 @@
             
             <div class="ticket-selection">
                 <div class="ticket-type">
-                    <h3>Ordinarie biljett (200 kr)</h3>
+                    <h3>{{ adult_label }} ({{ adult_price }} kr)</h3>
                     <div class="ticket-counter">
                         <button type="button" class="btn-counter minus" data-type="adult">-</button>
                         <input type="number" name="adult_tickets" id="adult_tickets" value="0" min="0" max="4" readonly>
@@ -58,7 +58,7 @@
                 </div>
                 
                 <div class="ticket-type">
-                    <h3>Studentbiljett (100 kr)</h3>
+                    <h3>{{ student_label }} ({{ student_price }} kr)</h3>
                     <div class="ticket-counter">
                         <button type="button" class="btn-counter minus" data-type="student">-</button>
                         <input type="number" name="student_tickets" id="student_tickets" value="0" min="0" max="4" readonly>
@@ -72,7 +72,7 @@
                     <p><strong>Totalt att betala:</strong> <span id="total-amount">0</span> kr</p>
                 </div>
                 <div class="swish-reminder">
-                    <p>Glöm inte att swisha till <strong>{{ swish_recipient_name }}</strong></p>
+                    <p>Klicka på betalningslänken nedan för att betala</p>
                 </div>
             </div>
             
@@ -92,8 +92,8 @@
             <h3>Din bokning:</h3>
             <ul>
                 <li><strong>Konsertdatum:</strong> {{ concert_date }}</li>
-                <li><strong>Ordinarie biljetter:</strong> {{ adult_tickets }} st</li>
-                <li><strong>Studentbiljetter:</strong> {{ student_tickets }} st</li>
+                <li><strong>{{ adult_label }}:</strong> {{ adult_tickets }} st</li>
+                <li><strong>{{ student_label }}:</strong> {{ student_tickets }} st</li>
                 <li><strong>Totalt:</strong> {{ total_amount }} kr</li>
             </ul>
         </div>
@@ -127,7 +127,7 @@
             </div>
             
             <div class="swish-reminder">
-                <p><strong>OBS!</strong> Du har reserverat en plats först när du BÅDE har reserverat en biljett här på hemsidan - och du har swishat summan till <strong>{{ swish_recipient_name }}</strong>.</p>
+                <p><strong>OBS!</strong> Du har reserverat en plats först när du BÅDE har reserverat en biljett här på hemsidan - och betalat. Klicka på länken nedan för att betala.</p>
             </div>
             
             <div class="step-actions">
@@ -138,4 +138,14 @@
     </div>
     {% endif %}
 </div>
+
+{% if step == 2 %}
+<script>
+    // Pass dynamic prices to JavaScript
+    window.bookingPrices = {
+        adult: {{ adult_price }},
+        student: {{ student_price }}
+    };
+</script>
+{% endif %}
 {% endblock %}
