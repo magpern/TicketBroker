@@ -44,6 +44,15 @@
         <div class="swish-reminder">
             <p><strong>OBS!</strong> Du har reserverat en plats först när du BÅDE har reserverat en biljett här på hemsidan - och du har swishat summan till <strong>{{ swish_recipient_name }}</strong>.</p>
         </div>
+        
+        <div class="help-section" style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.8); border-radius: 15px; text-align: center;">
+            <h3>Behöver du hjälp?</h3>
+            <p>Har du tappat bort dina biljetter eller behöver komma tillbaka till din bokning?</p>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 15px;">
+                <a href="{{ url_for('public.lost_tickets') }}" class="btn btn-secondary">Tappade biljetter?</a>
+                <a href="{{ url_for('public.find_booking') }}" class="btn btn-secondary">Hitta min bokning</a>
+            </div>
+        </div>
     </div>
 </div>
 

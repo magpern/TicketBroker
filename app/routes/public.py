@@ -354,3 +354,62 @@ def check_availability():
         'available': show.available_tickets,
         'sold_out': show.is_sold_out
     })
+
+@public_bp.route('/lost-tickets', methods=['GET', 'POST'])
+def lost_tickets():
+    """Lost tickets functionality - find booking by email and resend tickets"""
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        
+        if not email:
+            flash('Vänligen ange din e-postadress.', 'error')
+            return render_template('lost_tickets.html')
+        
+        # Find ALL bookings by email that have confirmed tickets
+        bookings = Booking.query.filter_by(email=email, status='confirmed').all()
+        confirmed_bookings_with_tickets = [b for b in bookings if b.tickets]
+        
+        if confirmed_bookings_with_tickets:
+            # Send ticket resend email for each confirmed booking with tickets
+            from app.utils.email import send_multiple_tickets_resend
+            if send_multiple_tickets_resend(confirmed_bookings_with_tickets):
+                if len(confirmed_bookings_with_tickets) == 1:
+                    flash('Om denna e-post har biljetter kommer dessa skickas dit.', 'success')
+                else:
+                    flash(f'Om denna e-post har biljetter kommer dessa skickas dit ({len(confirmed_bookings_with_tickets)} bokningar hittades).', 'success')
+            else:
+                flash('Ett fel uppstod vid skickande av e-post. Försök igen senare.', 'error')
+        else:
+            # Always show success message for security (don't reveal if email exists)
+            flash('Om denna e-post har biljetter kommer dessa skickas dit.', 'success')
+        
+        return render_template('lost_tickets.html')
+    
+    return render_template('lost_tickets.html')
+
+@public_bp.route('/find-booking', methods=['GET', 'POST'])
+def find_booking():
+    """Find booking by email and last name"""
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        last_name = request.form.get('last_name', '').strip()
+        
+        if not email or not last_name:
+            flash('Vänligen fyll i både e-post och efternamn.', 'error')
+            return render_template('find_booking.html')
+        
+        # Find ALL bookings by email and last name
+        bookings = Booking.query.filter_by(email=email, last_name=last_name).all()
+        
+        if bookings:
+            if len(bookings) == 1:
+                # Single booking - redirect directly
+                return redirect(url_for('public.booking_success', booking_id=bookings[0].id))
+            else:
+                # Multiple bookings - show selection page
+                return render_template('booking_selection.html', bookings=bookings)
+        else:
+            flash('Ingen bokning hittades med denna e-post och efternamn.', 'error')
+            return render_template('find_booking.html')
+    
+    return render_template('find_booking.html')
