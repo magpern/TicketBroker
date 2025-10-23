@@ -3,9 +3,14 @@ from app import mail
 from app.models import Settings
 from flask import current_app
 
+def _get_admin_email():
+    """Get admin email from settings"""
+    return Settings.get_value('admin_email', 'klasskonsertgruppen@gmail.com')
+
 def send_booking_confirmation(booking):
     """Send confirmation email to buyer"""
     try:
+        admin_email = _get_admin_email()
         swish_number = Settings.get_value('swish_number', '070 123 45 67')
         concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
         
@@ -16,7 +21,7 @@ def send_booking_confirmation(booking):
         msg = Message(
             subject=f'Biljettreservation bekräftad - {booking.booking_reference}',
             recipients=[booking.email],
-            sender=current_app.config['MAIL_DEFAULT_SENDER']
+            sender=admin_email
         )
         
         msg.html = f"""
@@ -60,12 +65,13 @@ def send_booking_confirmation(booking):
 def send_admin_notification(booking):
     """Send notification to admin about new booking"""
     try:
+        admin_email = _get_admin_email()
         admin_email = Settings.get_value('admin_email', 'oliver.ahlstrand@icloud.com')
         
         msg = Message(
             subject=f'Ny biljettreservation - {booking.booking_reference}',
             recipients=[admin_email],
-            sender=current_app.config['MAIL_DEFAULT_SENDER']
+            sender=admin_email
         )
         
         msg.html = f"""
@@ -99,12 +105,13 @@ def send_admin_notification(booking):
 def send_payment_confirmed(booking):
     """Send confirmation email with QR codes when payment is confirmed by admin"""
     try:
+        admin_email = _get_admin_email()
         concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
         
         msg = Message(
             subject=f'Betalning bekräftad - {booking.booking_reference}',
             recipients=[booking.email],
-            sender=current_app.config['MAIL_DEFAULT_SENDER']
+            sender=admin_email
         )
         
         # Generate QR codes for each ticket
@@ -172,12 +179,13 @@ def send_payment_confirmed(booking):
 def send_ticket_resend(booking):
     """Resend tickets to user (for lost tickets functionality)"""
     try:
+        admin_email = _get_admin_email()
         concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
         
         msg = Message(
             subject=f'Dina biljetter - {booking.booking_reference}',
             recipients=[booking.email],
-            sender=current_app.config['MAIL_DEFAULT_SENDER']
+            sender=admin_email
         )
         
         # Generate QR codes for each ticket
@@ -245,6 +253,7 @@ def send_ticket_resend(booking):
 def send_multiple_tickets_resend(bookings):
     """Resend tickets for multiple bookings in one email"""
     try:
+        admin_email = _get_admin_email()
         concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
         
         if not bookings:
@@ -256,7 +265,7 @@ def send_multiple_tickets_resend(bookings):
         msg = Message(
             subject=f'Dina biljetter - {len(bookings)} bokningar',
             recipients=[first_booking.email],
-            sender=current_app.config['MAIL_DEFAULT_SENDER']
+            sender=admin_email
         )
         
         # Generate QR codes for all tickets from all bookings
@@ -330,15 +339,13 @@ def send_multiple_tickets_resend(bookings):
 def send_contact_message(name, email, phone, subject, message):
     """Send contact form message to admin"""
     try:
-        from app.models import Settings
-        admin_email = Settings.get_value('admin_email', 'oliver.ahlstrand@icloud.com')
+        admin_email = _get_admin_email()
         concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
         
         msg = Message(
             subject=f'Kontaktformulär: {subject} - {concert_name}',
             recipients=[admin_email],
-            sender=current_app.config['MAIL_DEFAULT_SENDER'],
-            reply_to=[email]  # Admin can reply directly to the sender
+            sender=admin_email
         )
         
         phone_info = f"<li><strong>Telefon:</strong> {phone}</li>" if phone else ""

@@ -13,8 +13,25 @@ def create_app():
     app.config.from_object(Config)
     
     db.init_app(app)
-    mail.init_app(app)
     migrate.init_app(app, db)
+    
+    # Initialize mail with default config first
+    mail.init_app(app)
+    
+    # Configure mail settings from database after db is initialized
+    with app.app_context():
+        try:
+            from app.models import Settings
+            admin_email = Settings.get_value('admin_email', 'klasskonsertgruppen@gmail.com')
+            app.config['MAIL_USERNAME'] = admin_email
+            app.config['MAIL_DEFAULT_SENDER'] = admin_email
+            # Reinitialize mail with database settings
+            mail.init_app(app)
+        except Exception as e:
+            # If database is not ready, use default email
+            app.config['MAIL_USERNAME'] = 'klasskonsertgruppen@gmail.com'
+            app.config['MAIL_DEFAULT_SENDER'] = 'klasskonsertgruppen@gmail.com'
+            mail.init_app(app)
     
     # Register blueprints
     from app.routes.public import public_bp

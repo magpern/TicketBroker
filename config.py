@@ -12,9 +12,9 @@ class Config:
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_USERNAME = None  # Will be set from database settings
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
+    MAIL_DEFAULT_SENDER = None  # Will be set from database settings
     
     # Admin configuration
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'klasskonsert26'
@@ -24,7 +24,7 @@ class Config:
     ADULT_TICKET_PRICE = 200
     STUDENT_TICKET_PRICE = 100
     SWISH_NUMBER = '070 123 45 67'
-    SWISH_RECIPIENT_NAME = 'Oliver Ahlstrand'
-    CONTACT_EMAIL = 'oliver.ahlstrand@icloud.com'
+    SWISH_RECIPIENT_NAME = 'Donald Duck'
+    CONTACT_EMAIL = 'Donald.Duck@icloud.com'
     CONCERT_DATE = '29/1 2026'
     CONCERT_VENUE = 'Aulan på Rytmus Stockholm'
