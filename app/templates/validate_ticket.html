@@ -282,6 +282,39 @@
             border-radius: 8px;
             font-weight: bold;
         }
+        
+        .quick-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .quick-btn {
+            padding: 12px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .quick-btn:hover {
+            background: #2563eb;
+        }
+        
+        .quick-btn.secondary {
+            background: #6b7280;
+        }
+        
+        .quick-btn.secondary:hover {
+            background: #4b5563;
+        }
     </style>
 </head>
 <body>
@@ -335,6 +368,14 @@
         <div class="result" id="result">
             <div id="resultContent"></div>
             <div class="result-details" id="resultDetails"></div>
+            <div class="quick-actions" id="quickActions" style="display: none;">
+                <button class="quick-btn" onclick="quickReturnToCamera()">
+                    📷 Nästa Biljett
+                </button>
+                <button class="quick-btn secondary" onclick="toggleManual()">
+                    ✏️ Manuell
+                </button>
+            </div>
         </div>
         
         <div class="footer">
@@ -468,6 +509,14 @@
             validateTicket();
         }
         
+        function quickReturnToCamera() {
+            // Quick return to camera mode for next scan
+            toggleCamera();
+            setTimeout(() => {
+                startCamera();
+            }, 100);
+        }
+        
         function validateTicket() {
             const ticketInput = document.getElementById('ticketInput');
             const ticketReference = ticketInput.value.trim();
@@ -502,11 +551,6 @@
                     
                     // Clear input after successful validation
                     ticketInput.value = '';
-                    
-                    // Auto-focus for next scan
-                    setTimeout(() => {
-                        ticketInput.focus();
-                    }, 2000);
                 } else {
                     let statusClass = 'error';
                     if (data.status === 'used') {
@@ -542,6 +586,7 @@
             const result = document.getElementById('result');
             const resultContent = document.getElementById('resultContent');
             const resultDetails = document.getElementById('resultDetails');
+            const quickActions = document.getElementById('quickActions');
             
             // Remove all status classes
             result.className = 'result';
@@ -556,18 +601,25 @@
             resultContent.innerHTML = `<span class="status-indicator ${statusIcon}"></span>${message}`;
             resultDetails.innerHTML = details;
             
+            // Show quick actions for all results (for manual override)
+            quickActions.style.display = 'flex';
+            
             // Show result
             result.style.display = 'block';
             
-            // Auto-hide after 5 seconds for success, 10 seconds for errors
-            const hideDelay = type === 'success' ? 5000 : 10000;
+            // Auto-hide after different delays based on type
+            const hideDelay = type === 'success' ? 1500 : 8000; // Success auto-returns, errors stay longer
             setTimeout(() => {
-                hideResult();
+                if (type === 'success') {
+                    hideResult();
+                    quickReturnToCamera();
+                }
             }, hideDelay);
         }
         
         function hideResult() {
             document.getElementById('result').style.display = 'none';
+            document.getElementById('quickActions').style.display = 'none';
         }
         
         // Camera access for QR scanning (future enhancement)
