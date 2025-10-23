@@ -13,15 +13,15 @@
         <div class="concert-info-compact">
             <div class="concert-details">
                 <h3>Konsertinformation</h3>
-                <p><strong>Datum:</strong> 29/1 2026</p>
+                <p><strong>Datum:</strong> {{ concert_date }}</p>
                 <p><strong>Plats:</strong> Aulan på Rytmus Stockholm</p>
-                <p><strong>Tider:</strong> 17:45-18:45 eller 19:00-20:00</p>
+                <p><strong>Tider:</strong> {{ times_display }}</p>
             </div>
             
             <div class="pricing-compact">
                 <h3>Priser</h3>
-                <p><strong>Ordinarie biljett:</strong> 200 kr</p>
-                <p><strong>Studentbiljett:</strong> 100 kr</p>
+                <p><strong>Ordinarie biljett:</strong> {{ adult_price }} kr</p>
+                <p><strong>Studentbiljett:</strong> {{ student_price }} kr</p>
             </div>
         </div>
         

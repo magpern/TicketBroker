@@ -57,9 +57,30 @@ def generate_swish_qr_code(phone, amount, booking_ref):
 @public_bp.route('/')
 def index():
     """Landing page with class photo and welcome message"""
-    # Get Swish recipient name from settings
+    # Get settings
     swish_recipient_name = Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand')
-    return render_template('index.html', swish_recipient_name=swish_recipient_name)
+    adult_price = Settings.get_value('adult_price', '200')
+    student_price = Settings.get_value('student_price', '100')
+    concert_date = Settings.get_value('concert_date', '29/1 2026')
+    
+    # Get shows to display times dynamically
+    shows = Show.query.order_by(Show.start_time).all()
+    
+    # Format show times for display
+    show_times = []
+    if shows:
+        for show in shows:
+            show_times.append(f"{show.start_time}-{show.end_time}")
+        times_display = " eller ".join(show_times)
+    else:
+        times_display = "17:45-18:45 eller 19:00-20:00"  # fallback
+
+    return render_template('index.html', 
+                         swish_recipient_name=swish_recipient_name,
+                         adult_price=adult_price,
+                         student_price=student_price,
+                         concert_date=concert_date,
+                         times_display=times_display)
 
 @public_bp.route('/booking')
 def booking():
