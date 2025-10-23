@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validera Biljett - {{ concert_name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #1e40af;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        .scanner-area {
+            margin: 30px 0;
+            padding: 20px;
+            border: 3px dashed #d1d5db;
+            border-radius: 15px;
+            background: #f9fafb;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .scanner-area.active {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .scanner-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #9ca3af;
+        }
+        
+        .scanner-text {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .manual-input {
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .manual-input input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .manual-input input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .validate-btn {
+            width: 100%;
+            padding: 15px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .validate-btn:hover {
+            background: #2563eb;
+        }
+        
+        .validate-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            display: none;
+        }
+        
+        .result.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .result.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #ef4444;
+        }
+        
+        .result.used {
+            background: #fef3c7;
+            color: #d97706;
+            border: 2px solid #f59e0b;
+        }
+        
+        .result-details {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .status-indicator.success {
+            background: #22c55e;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
+        
+        .status-indicator.error {
+            background: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .status-indicator.used {
+            background: #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .camera-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .camera-controls {
+            margin-top: 15px;
+        }
+        
+        .camera-btn {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: background 0.3s ease;
+        }
+        
+        .camera-btn:hover {
+            background: #2563eb;
+        }
+        
+        .input-toggle {
+            display: flex;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #d1d5db;
+        }
+        
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            background: #f9fafb;
+            color: #6b7280;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .toggle-btn:hover:not(.active) {
+            background: #e5e7eb;
+        }
+        
+        .scanning-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            display: none;
+        }
+        
+        .scanning-text {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎫 Validera Biljett</h1>
+            <p>{{ concert_name }}</p>
+        </div>
+        
+        <div class="scanner-area" id="scannerArea">
+            <div class="scanner-icon">📱</div>
+            <div class="scanner-text">Skanna QR-kod eller ange biljettreferens</div>
+            
+            <!-- Camera Section -->
+            <div class="camera-section" id="cameraSection" style="display: none;">
+                <video id="video" autoplay muted playsinline style="width: 100%; max-width: 300px; border-radius: 10px;"></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+                <div class="camera-controls">
+                    <button class="camera-btn" id="startCameraBtn" onclick="startCamera()">
+                        📷 Starta Kamera
+                    </button>
+                    <button class="camera-btn" id="stopCameraBtn" onclick="stopCamera()" style="display: none;">
+                        ⏹️ Stoppa Kamera
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Manual Input Section -->
+            <div class="manual-input">
+                <div class="input-toggle">
+                    <button class="toggle-btn" id="cameraToggleBtn" onclick="toggleCamera()">
+                        📷 Kamera
+                    </button>
+                    <button class="toggle-btn active" id="manualToggleBtn" onclick="toggleManual()">
+                        ✏️ Manuell
+                    </button>
+                </div>
+                
+                <input type="text" id="ticketInput" placeholder="Ange biljettreferens..." maxlength="20">
+                <button class="validate-btn" id="validateBtn" onclick="validateTicket()">
+                    Validera Biljett
+                </button>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #6b7280;">Validerar biljett...</p>
+        </div>
+        
+        <div class="result" id="result">
+            <div id="resultContent"></div>
+            <div class="result-details" id="resultDetails"></div>
+        </div>
+        
+        <div class="footer">
+            <p>Använd kameran för att skanna QR-koder eller ange referens manuellt</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script>
+        let isScanning = false;
+        let stream = null;
+        let scanningInterval = null;
+        
+        // Focus on input when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('ticketInput').focus();
+        });
+        
+        // Handle Enter key in input
+        document.getElementById('ticketInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                validateTicket();
+            }
+        });
+        
+        // Auto-format input (uppercase, remove spaces)
+        document.getElementById('ticketInput').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase().replace(/\s/g, '');
+        });
+        
+        // Toggle between camera and manual input
+        function toggleCamera() {
+            document.getElementById('cameraToggleBtn').classList.add('active');
+            document.getElementById('manualToggleBtn').classList.remove('active');
+            document.getElementById('cameraSection').style.display = 'block';
+            document.getElementById('ticketInput').style.display = 'none';
+            document.getElementById('validateBtn').style.display = 'none';
+        }
+        
+        function toggleManual() {
+            document.getElementById('manualToggleBtn').classList.add('active');
+            document.getElementById('cameraToggleBtn').classList.remove('active');
+            document.getElementById('cameraSection').style.display = 'none';
+            document.getElementById('ticketInput').style.display = 'block';
+            document.getElementById('validateBtn').style.display = 'block';
+            stopCamera(); // Stop camera when switching to manual
+        }
+        
+        // Camera functions
+        async function startCamera() {
+            try {
+                const video = document.getElementById('video');
+                const startBtn = document.getElementById('startCameraBtn');
+                const stopBtn = document.getElementById('stopCameraBtn');
+                
+                // Request camera access
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment', // Use back camera on mobile
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    } 
+                });
+                
+                video.srcObject = stream;
+                video.play();
+                
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                
+                // Start QR code scanning
+                startQRScanning();
+                
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                alert('Kunde inte komma åt kameran. Kontrollera att du har gett tillstånd för kameraåtkomst.');
+            }
+        }
+        
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            if (scanningInterval) {
+                clearInterval(scanningInterval);
+                scanningInterval = null;
+            }
+            
+            document.getElementById('startCameraBtn').style.display = 'inline-block';
+            document.getElementById('stopCameraBtn').style.display = 'none';
+            
+            const video = document.getElementById('video');
+            video.srcObject = null;
+        }
+        
+        function startQRScanning() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            
+            scanningInterval = setInterval(() => {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    if (code) {
+                        console.log('QR Code detected:', code.data);
+                        
+                        // Validate the detected QR code
+                        validateQRCode(code.data);
+                        
+                        // Stop scanning after successful detection
+                        stopCamera();
+                        toggleManual(); // Switch back to manual mode
+                    }
+                }
+            }, 100); // Check every 100ms
+        }
+        
+        function validateQRCode(qrData) {
+            // Set the detected QR code data in the input field
+            document.getElementById('ticketInput').value = qrData;
+            
+            // Automatically validate the ticket
+            validateTicket();
+        }
+        
+        function validateTicket() {
+            const ticketInput = document.getElementById('ticketInput');
+            const ticketReference = ticketInput.value.trim();
+            
+            if (!ticketReference) {
+                showResult('error', 'Ange en biljettreferens', '');
+                return;
+            }
+            
+            // Show loading
+            showLoading(true);
+            hideResult();
+            
+            // Validate ticket via API
+            fetch('/api/validate-ticket', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ticket_reference: ticketReference
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                
+                if (data.valid) {
+                    showResult('success', 
+                        'Biljett godkänd - välkommen in!', 
+                        `Referens: ${data.ticket_reference}<br>Typ: ${data.ticket_type}<br>Bokning: ${data.booking_reference}`);
+                    
+                    // Clear input after successful validation
+                    ticketInput.value = '';
+                    
+                    // Auto-focus for next scan
+                    setTimeout(() => {
+                        ticketInput.focus();
+                    }, 2000);
+                } else {
+                    let statusClass = 'error';
+                    if (data.status === 'used') {
+                        statusClass = 'used';
+                    }
+                    
+                    showResult(statusClass, data.message, 
+                        data.ticket_reference ? `Referens: ${data.ticket_reference}` : '');
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                showResult('error', 'Ett fel uppstod vid validering', error.message);
+            });
+        }
+        
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const validateBtn = document.getElementById('validateBtn');
+            
+            if (show) {
+                loading.style.display = 'block';
+                validateBtn.disabled = true;
+                validateBtn.textContent = 'Validerar...';
+            } else {
+                loading.style.display = 'none';
+                validateBtn.disabled = false;
+                validateBtn.textContent = 'Validera Biljett';
+            }
+        }
+        
+        function showResult(type, message, details) {
+            const result = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            const resultDetails = document.getElementById('resultDetails');
+            
+            // Remove all status classes
+            result.className = 'result';
+            
+            // Add appropriate class
+            result.classList.add(type);
+            
+            // Set content
+            const statusIcon = type === 'success' ? 'success' : 
+                              type === 'used' ? 'used' : 'error';
+            
+            resultContent.innerHTML = `<span class="status-indicator ${statusIcon}"></span>${message}`;
+            resultDetails.innerHTML = details;
+            
+            // Show result
+            result.style.display = 'block';
+            
+            // Auto-hide after 5 seconds for success, 10 seconds for errors
+            const hideDelay = type === 'success' ? 5000 : 10000;
+            setTimeout(() => {
+                hideResult();
+            }, hideDelay);
+        }
+        
+        function hideResult() {
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        // Camera access for QR scanning (future enhancement)
+        function startCameraScanning() {
+            // This would integrate with a QR code scanning library
+            // For now, we rely on manual input
+            console.log('Camera scanning not implemented yet');
+        }
+    </script>
+</body>
+</html>

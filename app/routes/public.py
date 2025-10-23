@@ -321,6 +321,96 @@ def mobile_ticket(ticket_reference):
                          concert_date=concert_date,
                          concert_venue=concert_venue)
 
+@public_bp.route('/validate-ticket')
+def validate_ticket_page():
+    """Mobile-friendly ticket validation page for door staff"""
+    return render_template('validate_ticket.html')
+
+@public_bp.route('/api/validate-ticket', methods=['POST'])
+def validate_ticket_api():
+    """API endpoint to validate a ticket by QR code"""
+    try:
+        data = request.get_json()
+        ticket_reference = data.get('ticket_reference', '').strip()
+        
+        print(f"🔍 Validating ticket: {ticket_reference}")
+        
+        if not ticket_reference:
+            print("❌ No ticket reference provided")
+            return jsonify({
+                'valid': False,
+                'message': 'Ingen biljettreferens angiven',
+                'status': 'error'
+            }), 400
+        
+        # Find the ticket
+        ticket = Ticket.query.filter_by(ticket_reference=ticket_reference).first()
+        
+        if not ticket:
+            print(f"❌ Ticket not found: {ticket_reference}")
+            return jsonify({
+                'valid': False,
+                'message': 'Biljett hittades inte',
+                'status': 'error',
+                'ticket_reference': ticket_reference
+            })
+        
+        print(f"🎫 Found ticket: {ticket.ticket_reference}, is_used: {ticket.is_used}, booking_status: {ticket.booking.status}")
+        
+        # Check if ticket is already used
+        if ticket.is_used:
+            print(f"⚠️ Ticket already used: {ticket_reference}")
+            return jsonify({
+                'valid': False,
+                'message': 'Biljett redan använd',
+                'status': 'used',
+                'ticket_reference': ticket_reference,
+                'used_at': ticket.used_at.isoformat() if ticket.used_at else None
+            })
+        
+        # Check if booking is confirmed
+        if ticket.booking.status != 'confirmed':
+            print(f"⚠️ Booking not confirmed: {ticket_reference}, status: {ticket.booking.status}")
+            return jsonify({
+                'valid': False,
+                'message': 'Biljett inte bekräftad',
+                'status': 'unconfirmed',
+                'ticket_reference': ticket_reference,
+                'booking_status': ticket.booking.status
+            })
+        
+        # Mark ticket as used
+        ticket.is_used = True
+        ticket.used_at = datetime.now()
+        
+        # Log the ticket usage
+        from app.utils.audit import log_ticket_used
+        log_ticket_used(ticket, 'Door validation')
+        
+        db.session.commit()
+        
+        print(f"✅ Ticket validated successfully: {ticket_reference}")
+        
+        return jsonify({
+            'valid': True,
+            'message': 'Biljett godkänd - välkommen in!',
+            'status': 'success',
+            'ticket_reference': ticket_reference,
+            'ticket_type': 'Ordinarie' if ticket.ticket_type == 'normal' else 'Student',
+            'booking_reference': ticket.booking.booking_reference,
+            'used_at': ticket.used_at.isoformat()
+        })
+        
+    except Exception as e:
+        print(f"💥 Error validating ticket: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'valid': False,
+            'message': f'Ett fel uppstod: {str(e)}',
+            'status': 'error'
+        }), 500
+
 def generate_ticket_qr_code(ticket, logo_data=None):
     """Generate QR code for a specific ticket with optional logo"""
     import qrcode
