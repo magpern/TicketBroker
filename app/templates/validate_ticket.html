@@ -12,137 +12,115 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 10px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
         }
         
-        body::before {
-            content: '';
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 15px 0;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Camera Container - Main focus */
+        .camera-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        
+        .camera-section {
+            flex: 1;
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 300px;
+        }
+        
+        .camera-section video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Green overlay for valid tickets */
+        .valid-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 0;
-            box-shadow: 0 32px 64px rgba(0, 0, 0, 0.2), 
-                        0 0 0 1px rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
-            padding: 24px;
-            border-radius: 24px 24px 0 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-        
-        @keyframes shimmer {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.1); }
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header p {
-            font-size: 16px;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .scanner-area {
-            margin: 0;
-            padding: 32px;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 0 0 24px 24px;
-            min-height: 400px;
+            background: rgba(34, 197, 94, 0.9);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
+            z-index: 10;
+            animation: flashGreen 2s ease-in-out;
         }
         
-        .scanner-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: pulse 2s ease-in-out infinite;
+        @keyframes flashGreen {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0; transform: scale(1); }
         }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .valid-content {
+            text-align: center;
+            color: white;
         }
         
-        .scanner-text {
-            color: #64748b;
-            font-size: 18px;
-            margin-bottom: 24px;
-            font-weight: 500;
+        .valid-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
         }
         
-        .manual-input {
-            margin-top: 20px;
-            width: 100%;
+        .valid-text {
+            font-size: 1.5rem;
+            font-weight: 700;
         }
         
-        .manual-input input {
+        /* Manual Input Section */
+        .manual-section {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ticket-input {
             width: 100%;
             padding: 15px;
-            border: 2px solid #d1d5db;
-            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
             font-size: 16px;
-            text-align: center;
             margin-bottom: 15px;
             transition: border-color 0.3s ease;
         }
         
-        .manual-input input:focus {
+        .ticket-input:focus {
             outline: none;
             border-color: #3b82f6;
         }
@@ -153,113 +131,21 @@
             background: #3b82f6;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: background-color 0.3s ease;
         }
         
         .validate-btn:hover {
             background: #2563eb;
         }
         
-        .validate-btn:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-        
-        .result {
-            margin-top: 24px;
-            padding: 24px;
-            border-radius: 16px;
-            font-weight: 600;
-            font-size: 18px;
-            display: none;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-        
-        .result.success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
-        }
-        
-        .result.error {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
-        }
-        
-        .result.warning {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
-        }
-        
-        .result-details {
-            margin-top: 12px;
-            font-size: 14px;
-            font-weight: 400;
-            opacity: 0.9;
-        }
-        
-        .loading {
-            display: none;
-            margin-top: 20px;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .status-indicator {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 12px;
-            position: relative;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse-glow {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        .status-indicator.success {
-            background: #22c55e;
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
-        }
-        
-        .status-indicator.error {
-            background: #ef4444;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
-        }
-        
-        .status-indicator.warning {
-            background: #f59e0b;
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
-        }
-        
+        /* Show Selection - Below camera */
         .show-selection {
-            margin: 20px 0;
-            padding: 20px;
+            margin-bottom: 15px;
+            padding: 15px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             backdrop-filter: blur(10px);
@@ -292,192 +178,228 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
-        .show-info {
-            margin-top: 12px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .show-details {
+        /* Action Buttons - Simplified */
+        .action-buttons {
             display: flex;
-            justify-content: space-between;
-            color: white;
-            font-size: 14px;
-            font-weight: 500;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
-        .footer {
-            margin-top: 30px;
-            color: #6b7280;
-            font-size: 14px;
-        }
-        
-        .camera-section {
-            margin: 0;
-            text-align: center;
-            width: 100%;
-        }
-        
-        .camera-section video {
-            width: 100%;
-            max-width: 320px;
-            border-radius: 16px;
-            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
-            border: 3px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-        
-        .camera-section video:hover {
-            transform: scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-        
-        .camera-controls {
-            margin-top: 24px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-        
-        .camera-btn {
-            padding: 16px 24px;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
+        .action-btn {
+            flex: 1;
+            padding: 15px;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .camera-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .camera-btn:hover::before {
-            left: 100%;
-        }
-        
-        .camera-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-        }
-        
-        .camera-btn:active {
-            transform: translateY(0);
-        }
-        
-        .input-toggle {
             display: flex;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 2px solid #d1d5db;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
-        .toggle-btn {
-            flex: 1;
-            padding: 12px;
-            background: #f9fafb;
-            color: #6b7280;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .toggle-btn.active {
+        .action-btn.camera {
             background: #3b82f6;
             color: white;
         }
         
-        .toggle-btn:hover:not(.active) {
-            background: #e5e7eb;
+        .action-btn.camera:hover {
+            background: #2563eb;
         }
         
-        .scanning-overlay {
+        .action-btn.camera.active {
+            background: #1d4ed8;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+        .action-btn.manual {
+            background: white;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .action-btn.manual:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .action-btn.manual.active {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .btn-icon {
+            font-size: 18px;
+        }
+        
+        /* Loading Indicator */
+        .loading {
             position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 20;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Ticket Popup */
+        .ticket-popup {
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 15px;
-            display: none;
-            pointer-events: none; /* Allow clicks to pass through */
+            z-index: 1000;
+            padding: 20px;
         }
         
-        .scanning-text {
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-        
-        .quick-actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-        }
-        
-        .quick-btn {
-            padding: 14px 20px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .popup-content {
+            background: white;
             border-radius: 12px;
-            font-size: 14px;
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .popup-icon {
+            font-size: 2rem;
+        }
+        
+        .popup-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .popup-message {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .popup-details {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .popup-dismiss {
+            width: 100%;
+            padding: 12px;
+            background: #374151;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            flex: 1;
-            max-width: 150px;
+            transition: background-color 0.3s ease;
         }
         
-        .quick-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        .popup-dismiss:hover {
+            background: #1f2937;
         }
         
-        .quick-btn.secondary {
-            background: rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        /* Popup themes */
+        .ticket-popup.error .popup-content {
+            border-top: 4px solid #ef4444;
         }
         
-        .quick-btn.secondary:hover {
-            background: rgba(0, 0, 0, 0.2);
+        .ticket-popup.error .popup-icon {
+            color: #ef4444;
+        }
+        
+        .ticket-popup.warning .popup-content {
+            border-top: 4px solid #f59e0b;
+        }
+        
+        .ticket-popup.warning .popup-icon {
+            color: #f59e0b;
+        }
+        
+        .ticket-popup.used .popup-content {
+            border-top: 4px solid #f59e0b;
+        }
+        
+        .ticket-popup.used .popup-icon {
+            color: #f59e0b;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
             <h1>🎫 Validera Biljett</h1>
-            <p>Välj föreställning och skanna QR-kod</p>
         </div>
         
-        <!-- Show Selection -->
+        <!-- Camera Container - Directly under headline -->
+        <div class="camera-container" id="cameraContainer">
+            <!-- Camera Section -->
+            <div class="camera-section" id="cameraSection" style="display: none;">
+                <video id="video" autoplay muted playsinline></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+                
+                <!-- Green overlay for valid tickets -->
+                <div id="validOverlay" class="valid-overlay" style="display: none;">
+                    <div class="valid-content">
+                        <div class="valid-icon">✅</div>
+                        <div class="valid-text">Biljett Godkänd!</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Manual Input Section -->
+            <div class="manual-section" id="manualSection">
+                <input type="text" id="ticketInput" placeholder="Ange biljettreferens..." class="ticket-input">
+                <button id="validateBtn" onclick="validateTicket()" class="validate-btn">Validera Biljett</button>
+            </div>
+            
+            <!-- Loading Indicator -->
+            <div id="loading" class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Validerar biljett...</div>
+            </div>
+        </div>
+        
+        <!-- Show Selection - Below camera -->
         <div class="show-selection">
             <label for="showSelect" class="show-label">Föreställning:</label>
             <select id="showSelect" class="show-select" onchange="updateShowInfo()">
@@ -488,70 +410,31 @@
                 </option>
                 {% endfor %}
             </select>
-            <div id="showInfo" class="show-info" style="display: none;">
-                <div class="show-details">
-                    <span id="showTime"></span>
-                    <span id="showDate"></span>
+        </div>
+        
+        <!-- Action Buttons - Simplified -->
+        <div class="action-buttons">
+            <button id="cameraBtn" onclick="toggleCamera()" class="action-btn camera">
+                <span class="btn-icon">📷</span>
+                Kamera
+            </button>
+            <button id="manualBtn" onclick="switchToManual()" class="action-btn manual active">
+                <span class="btn-icon">✏️</span>
+                Manuell
+            </button>
+        </div>
+        
+        <!-- Popup for invalid/used tickets -->
+        <div id="ticketPopup" class="ticket-popup" style="display: none;">
+            <div class="popup-content">
+                <div class="popup-header">
+                    <span id="popupIcon" class="popup-icon"></span>
+                    <span id="popupTitle" class="popup-title"></span>
                 </div>
+                <div id="popupMessage" class="popup-message"></div>
+                <div id="popupDetails" class="popup-details"></div>
+                <button onclick="dismissPopup()" class="popup-dismiss">Stäng</button>
             </div>
-        </div>
-        
-        <div class="scanner-area" id="scannerArea">
-            <div class="scanner-icon">📱</div>
-            <div class="scanner-text">Skanna QR-kod eller ange biljettreferens</div>
-            
-            <!-- Camera Section -->
-            <div class="camera-section" id="cameraSection" style="display: none;">
-                <video id="video" autoplay muted playsinline></video>
-                <canvas id="canvas" style="display: none;"></canvas>
-                <div class="camera-controls">
-                    <button class="camera-btn" id="startCameraBtn" onclick="startCamera()">
-                        📷 Starta Kamera
-                    </button>
-                    <button class="camera-btn" id="stopCameraBtn" onclick="stopCamera()" style="display: none;">
-                        ⏹️ Stoppa Kamera
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Manual Input Section -->
-            <div class="manual-input">
-                <div class="input-toggle">
-                    <button class="toggle-btn" id="cameraToggleBtn" onclick="toggleCamera()">
-                        📷 Kamera
-                    </button>
-                    <button class="toggle-btn active" id="manualToggleBtn" onclick="toggleManual()">
-                        ✏️ Manuell
-                    </button>
-                </div>
-                
-                <input type="text" id="ticketInput" placeholder="Ange biljettreferens..." maxlength="20">
-                <button class="validate-btn" id="validateBtn" onclick="validateTicket()">
-                    Validera Biljett
-                </button>
-            </div>
-        </div>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p style="margin-top: 10px; color: #6b7280;">Validerar biljett...</p>
-        </div>
-        
-        <div class="result" id="result">
-            <div id="resultContent"></div>
-            <div class="result-details" id="resultDetails"></div>
-            <div class="quick-actions" id="quickActions" style="display: none;">
-                <button class="quick-btn" onclick="quickReturnToCamera()">
-                    📷 Nästa Biljett
-                </button>
-                <button class="quick-btn secondary" onclick="toggleManual()">
-                    ✏️ Manuell
-                </button>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>Använd kameran för att skanna QR-koder eller ange referens manuellt</p>
         </div>
     </div>
 
@@ -573,27 +456,62 @@
             }
         });
         
-        // Auto-format input (uppercase, remove spaces)
-        document.getElementById('ticketInput').addEventListener('input', function(e) {
-            e.target.value = e.target.value.toUpperCase().replace(/\s/g, '');
-        });
-        
-        // Toggle between camera and manual input
-        function toggleCamera() {
-            document.getElementById('cameraToggleBtn').classList.add('active');
-            document.getElementById('manualToggleBtn').classList.remove('active');
-            document.getElementById('cameraSection').style.display = 'block';
-            document.getElementById('ticketInput').style.display = 'none';
-            document.getElementById('validateBtn').style.display = 'none';
+        // Show selection functions
+        function updateShowInfo() {
+            // Show info is now simplified - just the dropdown
         }
         
-        function toggleManual() {
-            document.getElementById('manualToggleBtn').classList.add('active');
-            document.getElementById('cameraToggleBtn').classList.remove('active');
-            document.getElementById('cameraSection').style.display = 'none';
-            document.getElementById('ticketInput').style.display = 'block';
-            document.getElementById('validateBtn').style.display = 'block';
-            stopCamera(); // Stop camera when switching to manual
+        function getSelectedShowId() {
+            const showSelect = document.getElementById('showSelect');
+            return showSelect.value;
+        }
+        
+        // Toggle camera function - starts camera when clicked
+        function toggleCamera() {
+            const cameraBtn = document.getElementById('cameraBtn');
+            const manualBtn = document.getElementById('manualBtn');
+            const cameraSection = document.getElementById('cameraSection');
+            const manualSection = document.getElementById('manualSection');
+            
+            // Stop camera if running
+            if (stream) {
+                stopCamera();
+            }
+            
+            // Start camera
+            startCamera();
+            
+            // Update button states
+            cameraBtn.classList.add('active');
+            manualBtn.classList.remove('active');
+            
+            // Show camera, hide manual
+            cameraSection.style.display = 'block';
+            manualSection.style.display = 'none';
+        }
+        
+        // Switch to manual - automatically stops camera
+        function switchToManual() {
+            const cameraBtn = document.getElementById('cameraBtn');
+            const manualBtn = document.getElementById('manualBtn');
+            const cameraSection = document.getElementById('cameraSection');
+            const manualSection = document.getElementById('manualSection');
+            
+            // Stop camera automatically
+            if (stream) {
+                stopCamera();
+            }
+            
+            // Update button states
+            cameraBtn.classList.remove('active');
+            manualBtn.classList.add('active');
+            
+            // Show manual, hide camera
+            cameraSection.style.display = 'none';
+            manualSection.style.display = 'block';
+            
+            // Focus on input
+            document.getElementById('ticketInput').focus();
         }
         
         // Camera functions
@@ -608,8 +526,6 @@
                 }
                 
                 const video = document.getElementById('video');
-                const startBtn = document.getElementById('startCameraBtn');
-                const stopBtn = document.getElementById('stopCameraBtn');
                 
                 // Request camera access with optimized settings for QR scanning
                 stream = await navigator.mediaDevices.getUserMedia({ 
@@ -623,9 +539,6 @@
                 
                 video.srcObject = stream;
                 video.play();
-                
-                startBtn.style.display = 'none';
-                stopBtn.style.display = 'inline-block';
                 
                 // Wait for video to be ready before starting QR scanning
                 video.addEventListener('loadedmetadata', function() {
@@ -670,10 +583,6 @@
             for (let i = 1; i < 1000; i++) {
                 clearInterval(i);
             }
-            
-            // Reset UI
-            document.getElementById('startCameraBtn').style.display = 'inline-block';
-            document.getElementById('stopCameraBtn').style.display = 'none';
             
             // Clear video
             const video = document.getElementById('video');
@@ -778,56 +687,23 @@
             validateTicket();
         }
         
-        function quickReturnToCamera() {
-            // Quick return to camera mode for next scan
-            toggleCamera();
-            setTimeout(() => {
-                startCamera();
-            }, 100);
-        }
-        
-        // Show selection functions
-        function updateShowInfo() {
-            const showSelect = document.getElementById('showSelect');
-            const showInfo = document.getElementById('showInfo');
-            const showTime = document.getElementById('showTime');
-            const showDate = document.getElementById('showDate');
-            
-            if (showSelect.value) {
-                const selectedOption = showSelect.options[showSelect.selectedIndex];
-                const showText = selectedOption.text;
-                
-                showTime.textContent = showText;
-                showDate.textContent = '{{ concert_date }}';
-                showInfo.style.display = 'block';
-            } else {
-                showInfo.style.display = 'none';
-            }
-        }
-        
-        function getSelectedShowId() {
-            const showSelect = document.getElementById('showSelect');
-            return showSelect.value;
-        }
-        
         function validateTicket() {
             const ticketInput = document.getElementById('ticketInput');
             const ticketReference = ticketInput.value.trim();
             const showId = getSelectedShowId();
             
             if (!ticketReference) {
-                showResult('error', 'Ange en biljettreferens', '');
+                showPopup('error', '❌', 'Fel', 'Ange en biljettreferens', '');
                 return;
             }
             
             if (!showId) {
-                showResult('error', 'Välj föreställning först', '');
+                showPopup('error', '❌', 'Fel', 'Välj föreställning först', '');
                 return;
             }
             
             // Show loading
             showLoading(true);
-            hideResult();
             
             // Validate ticket via API
             fetch('/api/validate-ticket', {
@@ -845,91 +721,83 @@
                 showLoading(false);
                 
                 if (data.valid) {
-                    showResult('success', 
-                        'Biljett godkänd - välkommen in!', 
-                        `Referens: ${data.ticket_reference}<br>Typ: ${data.ticket_type}<br>Bokning: ${data.booking_reference}`);
+                    // Show green overlay for valid tickets
+                    showValidOverlay();
                     
                     // Clear input after successful validation
                     ticketInput.value = '';
                 } else {
-                    let statusClass = 'error';
+                    // Show popup for invalid/used tickets
+                    let popupType = 'error';
+                    let icon = '❌';
+                    let title = 'Ogiltig Biljett';
+                    
                     if (data.status === 'used') {
-                        statusClass = 'used';
+                        popupType = 'used';
+                        icon = '⚠️';
+                        title = 'Biljett Redan Använd';
                     } else if (data.status === 'wrong_show') {
-                        statusClass = 'warning';
+                        popupType = 'warning';
+                        icon = '⚠️';
+                        title = 'Fel Föreställning';
                     }
                     
-                    showResult(statusClass, data.message, 
-                        data.ticket_reference ? `Referens: ${data.ticket_reference}` : '');
+                    let details = `Referens: ${data.ticket_reference}`;
+                    if (data.used_at) {
+                        details += `<br>Senast skannad: ${new Date(data.used_at).toLocaleString('sv-SE')}`;
+                    }
+                    
+                    showPopup(popupType, icon, title, data.message, details);
                 }
             })
             .catch(error => {
                 showLoading(false);
-                showResult('error', 'Ett fel uppstod vid validering', error.message);
+                showPopup('error', '❌', 'Fel', 'Ett fel uppstod vid validering', error.message);
             });
+        }
+        
+        function showValidOverlay() {
+            const overlay = document.getElementById('validOverlay');
+            overlay.style.display = 'flex';
+            
+            // Hide overlay after animation
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 2000);
+        }
+        
+        function showPopup(type, icon, title, message, details) {
+            const popup = document.getElementById('ticketPopup');
+            const popupIcon = document.getElementById('popupIcon');
+            const popupTitle = document.getElementById('popupTitle');
+            const popupMessage = document.getElementById('popupMessage');
+            const popupDetails = document.getElementById('popupDetails');
+            
+            // Remove all type classes
+            popup.className = 'ticket-popup';
+            popup.classList.add(type);
+            
+            // Set content
+            popupIcon.textContent = icon;
+            popupTitle.textContent = title;
+            popupMessage.textContent = message;
+            popupDetails.innerHTML = details;
+            
+            // Show popup
+            popup.style.display = 'flex';
+        }
+        
+        function dismissPopup() {
+            const popup = document.getElementById('ticketPopup');
+            popup.style.display = 'none';
+            
+            // Clear input
+            document.getElementById('ticketInput').value = '';
         }
         
         function showLoading(show) {
             const loading = document.getElementById('loading');
-            const validateBtn = document.getElementById('validateBtn');
-            
-            if (show) {
-                loading.style.display = 'block';
-                validateBtn.disabled = true;
-                validateBtn.textContent = 'Validerar...';
-            } else {
-                loading.style.display = 'none';
-                validateBtn.disabled = false;
-                validateBtn.textContent = 'Validera Biljett';
-            }
-        }
-        
-        function showResult(type, message, details) {
-            const result = document.getElementById('result');
-            const resultContent = document.getElementById('resultContent');
-            const resultDetails = document.getElementById('resultDetails');
-            const quickActions = document.getElementById('quickActions');
-            
-            // Remove all status classes
-            result.className = 'result';
-            
-            // Add appropriate class
-            result.classList.add(type);
-            
-            // Set content
-            const statusIcon = type === 'success' ? 'success' : 
-                              type === 'used' ? 'used' : 
-                              type === 'warning' ? 'warning' : 'error';
-            
-            resultContent.innerHTML = `<span class="status-indicator ${statusIcon}"></span>${message}`;
-            resultDetails.innerHTML = details;
-            
-            // Show quick actions for all results (for manual override)
-            quickActions.style.display = 'flex';
-            
-            // Show result
-            result.style.display = 'block';
-            
-            // Auto-hide after different delays based on type
-            const hideDelay = type === 'success' ? 1500 : 8000; // Success auto-returns, errors stay longer
-            setTimeout(() => {
-                if (type === 'success') {
-                    hideResult();
-                    quickReturnToCamera();
-                }
-            }, hideDelay);
-        }
-        
-        function hideResult() {
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('quickActions').style.display = 'none';
-        }
-        
-        // Camera access for QR scanning (future enhancement)
-        function startCameraScanning() {
-            // This would integrate with a QR code scanning library
-            // For now, we rely on manual input
-            console.log('Camera scanning not implemented yet');
+            loading.style.display = show ? 'block' : 'none';
         }
     </script>
 </body>
