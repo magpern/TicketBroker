@@ -226,6 +226,8 @@
             cursor: pointer;
             margin: 0 5px;
             transition: background 0.3s ease;
+            z-index: 10;
+            position: relative;
         }
         
         .camera-btn:hover {
@@ -273,6 +275,7 @@
             justify-content: center;
             border-radius: 15px;
             display: none;
+            pointer-events: none; /* Allow clicks to pass through */
         }
         
         .scanning-text {
@@ -332,12 +335,18 @@
             <div class="camera-section" id="cameraSection" style="display: none;">
                 <video id="video" autoplay muted playsinline style="width: 100%; max-width: 300px; border-radius: 10px;"></video>
                 <canvas id="canvas" style="display: none;"></canvas>
+                <div class="scanning-overlay" id="scanningOverlay" style="display: none;">
+                    <div class="scanning-text">🔍 Skannar QR-kod...</div>
+                </div>
                 <div class="camera-controls">
                     <button class="camera-btn" id="startCameraBtn" onclick="startCamera()">
                         📷 Starta Kamera
                     </button>
                     <button class="camera-btn" id="stopCameraBtn" onclick="stopCamera()" style="display: none;">
                         ⏹️ Stoppa Kamera
+                    </button>
+                    <button class="camera-btn" onclick="testQRDetection()" style="background: #059669;">
+                        🧪 Test QR
                     </button>
                 </div>
             </div>
@@ -431,12 +440,13 @@
                 const startBtn = document.getElementById('startCameraBtn');
                 const stopBtn = document.getElementById('stopCameraBtn');
                 
-                // Request camera access
+                // Request camera access with optimized settings for QR scanning
                 stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
                         facingMode: 'environment', // Use back camera on mobile
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
+                        width: { ideal: 1280, max: 1920 }, // Higher resolution for better QR detection
+                        height: { ideal: 720, max: 1080 },
+                        frameRate: { ideal: 30, max: 60 } // Higher frame rate for faster detection
                     } 
                 });
                 
@@ -446,8 +456,22 @@
                 startBtn.style.display = 'none';
                 stopBtn.style.display = 'inline-block';
                 
-                // Start QR code scanning
-                startQRScanning();
+                // Show scanning overlay
+                document.getElementById('scanningOverlay').style.display = 'flex';
+                
+                // Wait for video to be ready before starting QR scanning
+                video.addEventListener('loadedmetadata', function() {
+                    console.log('Video metadata loaded, dimensions:', video.videoWidth, 'x', video.videoHeight);
+                    startQRScanning();
+                });
+                
+                // Fallback: start scanning after 2 seconds if metadata doesn't load
+                setTimeout(() => {
+                    if (video.readyState < 2) {
+                        console.log('Video not ready after 2 seconds, starting anyway');
+                        startQRScanning();
+                    }
+                }, 2000);
                 
             } catch (error) {
                 console.error('Error accessing camera:', error);
@@ -466,6 +490,9 @@
                 scanningInterval = null;
             }
             
+            // Hide scanning overlay
+            document.getElementById('scanningOverlay').style.display = 'none';
+            
             document.getElementById('startCameraBtn').style.display = 'inline-block';
             document.getElementById('stopCameraBtn').style.display = 'none';
             
@@ -476,29 +503,94 @@
         function startQRScanning() {
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
-            const context = canvas.getContext('2d');
+            const context = canvas.getContext('2d', { willReadFrequently: true });
             
+            console.log('Starting QR scanning...');
+            console.log('Video ready state:', video.readyState);
+            console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+            
+            let scanCount = 0;
+            let videoReady = false;
+            
+            // Check if video is ready
+            function checkVideoReady() {
+                if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
+                    videoReady = true;
+                    console.log('Video is ready, dimensions:', video.videoWidth, 'x', video.videoHeight);
+                }
+                return videoReady;
+            }
+            
+            // Ultra-fast scanning - check every 100ms for debugging
             scanningInterval = setInterval(() => {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                scanCount++;
+                
+                if (checkVideoReady()) {
+                    // Use video dimensions for better accuracy
+                    const videoWidth = video.videoWidth;
+                    const videoHeight = video.videoHeight;
                     
-                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    canvas.width = videoWidth;
+                    canvas.height = videoHeight;
                     
-                    if (code) {
-                        console.log('QR Code detected:', code.data);
+                    // Draw video frame to canvas
+                    context.drawImage(video, 0, 0, videoWidth, videoHeight);
+                    
+                    // Get image data for QR detection
+                    const imageData = context.getImageData(0, 0, videoWidth, videoHeight);
+                    
+                    // Try QR detection with multiple approaches for better compatibility
+                    let code = null;
+                    
+                    // First try: Standard detection
+                    code = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    // Second try: With inversion attempts if first fails
+                    if (!code) {
+                        code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: "attemptBoth"
+                        });
+                    }
+                    
+                    if (code && code.data) {
+                        console.log('QR Code detected:', code.data, 'after', scanCount, 'scans');
+                        
+                        // Stop scanning immediately
+                        clearInterval(scanningInterval);
+                        scanningInterval = null;
+                        
+                        // Hide scanning overlay
+                        document.getElementById('scanningOverlay').style.display = 'none';
                         
                         // Validate the detected QR code
                         validateQRCode(code.data);
-                        
-                        // Stop scanning after successful detection
-                        stopCamera();
-                        toggleManual(); // Switch back to manual mode
+                    } else if (scanCount % 10 === 0) {
+                        // Log every 10th scan attempt for debugging
+                        console.log('Scan attempt', scanCount, '- no QR code detected');
+                    }
+                } else {
+                    if (scanCount % 20 === 0) {
+                        console.log('Video not ready, state:', video.readyState, 'dimensions:', video.videoWidth, 'x', video.videoHeight);
                     }
                 }
-            }, 100); // Check every 100ms
+            }, 100); // 100ms for debugging
+            
+            // Add timeout to show if scanning is working
+            setTimeout(() => {
+                console.log('QR scanning active for 5 seconds, video ready:', videoReady, 'scans:', scanCount);
+            }, 5000);
+        }
+        
+        function testQRDetection() {
+            // Test QR detection with a known QR code
+            console.log('Testing QR detection...');
+            
+            // Create a test QR code
+            const testData = 'TEST-TICKET-123';
+            console.log('Testing with data:', testData);
+            
+            // Simulate QR detection
+            validateQRCode(testData);
         }
         
         function validateQRCode(qrData) {
