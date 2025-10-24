@@ -441,7 +441,7 @@ def validate_ticket_api():
         traceback.print_exc()
         return jsonify({
             'valid': False,
-            'message': f'Ett fel uppstod: {str(e)}',
+            'message': 'Ett internt fel uppstod. Försök igen senare.',
             'status': 'error'
         }), 500
 
