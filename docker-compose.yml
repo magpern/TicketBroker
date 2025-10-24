@@ -4,7 +4,8 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - D:\ticketbroker\data:/data
+      - ticketbroker_data:/data
+      - ticketbroker_logs:/logs
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
@@ -12,6 +13,7 @@ services:
       - MAIL_PASSWORD=${MAIL_PASSWORD:-your-gmail-app-password}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-klasskonsert26}
     restart: unless-stopped
+    user: "1000:1000"  # Explicit user mapping
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/"]
       interval: 30s
@@ -20,4 +22,5 @@ services:
       start_period: 40s
 
 volumes:
-  data:
+  ticketbroker_data:
+  ticketbroker_logs:

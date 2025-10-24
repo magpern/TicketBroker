@@ -70,3 +70,5 @@ docker-compose -f ${COMPOSE_FILE} ps
 echo "🎉 Deployment complete!"
 echo "🌐 Application should be available at: http://your-pi-ip:5000"
 echo "📋 Deployed version: ${VERSION}"
+echo "💾 Database stored in Docker named volume: ticketbroker_data"
+echo "📝 Logs stored in Docker named volume: ticketbroker_logs"

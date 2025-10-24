@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create data directory for SQLite database
-RUN mkdir -p /data
+# Create data and logs directories
+RUN mkdir -p /data /logs
 
 # Set environment variables
 ENV FLASK_APP=run.py
@@ -28,7 +28,7 @@ ENV FLASK_ENV=production
 ENV DATABASE_URL=sqlite:////data/ticketbroker.db
 
 # Create non-root user for security
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app /data
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app /data /logs
 USER appuser
 
 # Expose port
