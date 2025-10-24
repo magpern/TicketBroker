@@ -139,7 +139,7 @@ gunicorn -c gunicorn.conf.py run:app
 **Configuration:**
 - **Workers**: 4 processes
 - **Port**: 5001
-- **Logs**: `logs/access.log`, `logs/error.log`
+- **Logs**: `/logs/access.log`, `/logs/error.log`
 - **Timeout**: 30 seconds
 - **Max Requests**: 1000 per worker
 

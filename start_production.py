@@ -33,7 +33,7 @@ def start_production():
     print("🚀 Starting TicketBroker in production mode...")
     print("📊 Server: Gunicorn WSGI")
     print("🌐 URL: http://localhost:5001")
-    print("📝 Logs: logs/access.log, logs/error.log")
+    print("📝 Logs: /logs/access.log, /logs/error.log")
     print("⏹️  Stop: Ctrl+C")
     print("-" * 50)
     
