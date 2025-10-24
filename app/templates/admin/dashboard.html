@@ -13,6 +13,9 @@
             <a href="{{ url_for('admin.check_ticket') }}" class="btn btn-primary">Kontrollera biljett</a>
             <a href="{{ url_for('admin.audit_log') }}" class="btn btn-secondary">Auditlogg</a>
             <a href="{{ url_for('admin.revenue_report') }}" class="btn btn-success">Revenue Report</a>
+            <a href="{{ url_for('public.validate_ticket_page') }}" class="btn btn-info" target="_blank">
+                🎫 Validera Biljetter
+            </a>
             <a href="{{ url_for('admin.export_excel') }}" class="btn btn-secondary">Exportera till Excel</a>
             <a href="{{ url_for('admin.logout') }}" class="btn btn-danger">Logga ut</a>
         </div>

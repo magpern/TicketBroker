@@ -322,9 +322,22 @@ def mobile_ticket(ticket_reference):
                          concert_venue=concert_venue)
 
 @public_bp.route('/validate-ticket')
-def validate_ticket_page():
+@public_bp.route('/validate-ticket/<int:show_id>')
+def validate_ticket_page(show_id=None):
     """Mobile-friendly ticket validation page for door staff"""
-    return render_template('validate_ticket.html')
+    from app.models import Show
+    
+    # Get all shows for selection
+    shows = Show.query.order_by(Show.start_time).all()
+    
+    # If show_id is provided, get that specific show
+    selected_show = None
+    if show_id:
+        selected_show = Show.query.get(show_id)
+    
+    return render_template('validate_ticket.html', 
+                         shows=shows, 
+                         selected_show=selected_show)
 
 @public_bp.route('/api/validate-ticket', methods=['POST'])
 def validate_ticket_api():
@@ -332,14 +345,23 @@ def validate_ticket_api():
     try:
         data = request.get_json()
         ticket_reference = data.get('ticket_reference', '').strip()
+        show_id = data.get('show_id')
         
-        print(f"🔍 Validating ticket: {ticket_reference}")
+        print(f"🔍 Validating ticket: {ticket_reference} for show: {show_id}")
         
         if not ticket_reference:
             print("❌ No ticket reference provided")
             return jsonify({
                 'valid': False,
                 'message': 'Ingen biljettreferens angiven',
+                'status': 'error'
+            }), 400
+        
+        if not show_id:
+            print("❌ No show ID provided")
+            return jsonify({
+                'valid': False,
+                'message': 'Ingen föreställning vald',
                 'status': 'error'
             }), 400
         
@@ -356,6 +378,18 @@ def validate_ticket_api():
             })
         
         print(f"🎫 Found ticket: {ticket.ticket_reference}, is_used: {ticket.is_used}, booking_status: {ticket.booking.status}")
+        
+        # Check if ticket is for the correct show
+        if ticket.booking.show_id != int(show_id):
+            print(f"⚠️ Ticket for wrong show: {ticket_reference}, ticket show: {ticket.booking.show_id}, validation show: {show_id}")
+            return jsonify({
+                'valid': False,
+                'message': 'Biljett för fel föreställning',
+                'status': 'wrong_show',
+                'ticket_reference': ticket_reference,
+                'ticket_show_id': ticket.booking.show_id,
+                'validation_show_id': int(show_id)
+            })
         
         # Check if ticket is already used
         if ticket.is_used:
