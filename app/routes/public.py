@@ -58,7 +58,7 @@ def generate_swish_qr_code(phone, amount, booking_ref):
 def index():
     """Landing page with class photo and welcome message"""
     # Get settings
-    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand')
+    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Donald Duch')
     adult_price = Settings.get_value('adult_price', '200')
     student_price = Settings.get_value('student_price', '100')
     concert_date = Settings.get_value('concert_date', '29/1 2026')

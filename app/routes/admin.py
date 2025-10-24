@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, make_response
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, jsonify, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.models import Show, Booking, Settings, Ticket, Buyer, AuditLog
 from app import db
@@ -30,7 +30,11 @@ def login():
     """Admin login page"""
     if request.method == 'POST':
         password = request.form.get('password')
-        admin_password = 'klasskonsert26'  # In production, this should be hashed
+        admin_password = current_app.config.get('ADMIN_PASSWORD')
+        
+        if not admin_password:
+            flash('Admin password not configured. Please set ADMIN_PASSWORD in environment variables.', 'error')
+            return render_template('admin/login.html', concert_name=get_concert_name())
         
         if password == admin_password:
             session['admin_logged_in'] = True

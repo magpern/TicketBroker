@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    SECRET_KEY = os.environ.get('SECRET_KEY') 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///ticketbroker.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
@@ -17,7 +17,7 @@ class Config:
     MAIL_DEFAULT_SENDER = None  # Will be set from database settings
     
     # Admin configuration
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'klasskonsert26'
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
     
     # App configuration
     MAX_TICKETS_PER_BOOKING = 4
