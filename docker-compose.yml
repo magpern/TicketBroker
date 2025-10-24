@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   ticketbroker:
     build: .
@@ -12,8 +10,7 @@ services:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
       - DATABASE_URL=sqlite:////data/ticketbroker.db
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-your-gmail-app-password}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-klasskonsert26}
     restart: unless-stopped
     healthcheck:
