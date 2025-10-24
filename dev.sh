@@ -16,4 +16,5 @@ export FLASK_DEBUG=1
 
 # Run the application
 echo "🚀 Starting Flask application in development mode..."
+echo "🔧 Debug mode: ENABLED (safe for development only)"
 python run.py
