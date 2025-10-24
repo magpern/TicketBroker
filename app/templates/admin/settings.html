@@ -86,6 +86,24 @@
             </div>
             
             <div class="settings-group">
+                <h3>Klassbild</h3>
+                <div class="form-group">
+                    <label for="class_photo">Ladda upp klassbild (PNG/JPG, rekommenderad storlek: 800x600px)</label>
+                    <input type="file" id="class_photo" name="class_photo" accept="image/png,image/jpeg,image/jpg">
+                    {% if settings.get('class_photo_data') %}
+                        <div class="current-photo">
+                            <p>Aktuell klassbild:</p>
+                            <img src="data:{{ settings.get('class_photo_content_type', 'image/jpeg') }};base64,{{ settings.get('class_photo_data') }}" 
+                                 alt="Current class photo" style="max-width: 300px; max-height: 200px; border: 1px solid #ddd; padding: 5px; border-radius: 8px;">
+                            <p><small>För att ändra klassbild, välj en ny fil ovan</small></p>
+                        </div>
+                    {% else %}
+                        <p><small>Ingen klassbild uppladdad. Standardbild från filsystemet används.</small></p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="settings-group">
                 <h3>Logo för QR-koder</h3>
                 <div class="form-group">
                     <label for="qr_logo">Ladda upp logo (PNG/JPG, max 200x200px)</label>

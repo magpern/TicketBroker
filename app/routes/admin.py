@@ -99,6 +99,29 @@ def settings():
 def update_settings():
     """Update settings"""
     try:
+        # Handle file upload for class photo
+        if 'class_photo' in request.files:
+            photo_file = request.files['class_photo']
+            if photo_file and photo_file.filename:
+                # Validate file type
+                allowed_extensions = {'png', 'jpg', 'jpeg'}
+                if '.' in photo_file.filename and photo_file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                    # Read file data and convert to base64
+                    import base64
+                    photo_data = photo_file.read()
+                    photo_base64 = base64.b64encode(photo_data).decode('utf-8')
+                    
+                    # Get file extension for content type
+                    file_extension = photo_file.filename.rsplit('.', 1)[1].lower()
+                    content_type = f"image/{file_extension}" if file_extension != 'jpg' else "image/jpeg"
+                    
+                    # Store base64 data and content type in database
+                    Settings.set_value('class_photo_data', photo_base64)
+                    Settings.set_value('class_photo_content_type', content_type)
+                else:
+                    flash('Ogiltigt filformat för klassbild. Endast PNG, JPG och JPEG är tillåtna.', 'error')
+                    return redirect(url_for('admin.settings'))
+        
         # Handle file upload for QR logo
         if 'qr_logo' in request.files:
             logo_file = request.files['qr_logo']
@@ -119,7 +142,7 @@ def update_settings():
                     Settings.set_value('qr_logo_data', logo_base64)
                     Settings.set_value('qr_logo_content_type', content_type)
                 else:
-                    flash('Ogiltigt filformat. Endast PNG, JPG och JPEG är tillåtna.', 'error')
+                    flash('Ogiltigt filformat för logo. Endast PNG, JPG och JPEG är tillåtna.', 'error')
                     return redirect(url_for('admin.settings'))
         
         # Update each setting

@@ -54,6 +54,28 @@ def generate_swish_qr_code(phone, amount, booking_ref):
     
     return f"data:image/png;base64,{img_base64}"
 
+@public_bp.route('/class-photo')
+def class_photo():
+    """Serve class photo from database"""
+    from flask import Response
+    
+    # Get class photo data from database
+    class_photo_data = Settings.get_value('class_photo_data')
+    class_photo_content_type = Settings.get_value('class_photo_content_type', 'image/jpeg')
+    
+    if class_photo_data:
+        import base64
+        try:
+            # Decode base64 data
+            photo_bytes = base64.b64decode(class_photo_data)
+            return Response(photo_bytes, mimetype=class_photo_content_type)
+        except Exception as e:
+            print(f"Error decoding class photo data: {e}")
+    
+    # Fallback to static file if no database image
+    from flask import send_from_directory
+    return send_from_directory('static/images', 'class-photo.jpg')
+
 @public_bp.route('/')
 def index():
     """Landing page with class photo and welcome message"""

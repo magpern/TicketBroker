@@ -171,3 +171,4 @@ app/static/images/*.jpg
 app/static/images/*.png
 app/static/images/*.jpeg
 !app/static/images/README.md
+!app/static/images/class-photo.jpg
