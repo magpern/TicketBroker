@@ -283,7 +283,7 @@ def export_excel():
     ws.title = "Biljettbokningar"
     
     # Headers
-    headers = ['ID', 'Namn', 'E-post', 'Telefon', 'Tid', 'Ordinarie biljetter', 'Studentbiljetter', 'Totalt', 'Status', 'Betalning bekräftad', 'Datum']
+    headers = ['ID', 'Namn', 'E-post', 'Telefon', 'Tid', 'Ordinariebiljetter', 'Studentbiljetter', 'Totalt', 'Status', 'Betalning bekräftad', 'Datum']
     for col, header in enumerate(headers, 1):
         ws.cell(row=1, column=col, value=header)
     

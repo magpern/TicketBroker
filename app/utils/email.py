@@ -11,7 +11,7 @@ def send_booking_confirmation(booking):
     """Send confirmation email to buyer"""
     try:
         admin_email = _get_admin_email()
-        swish_number = Settings.get_value('swish_number', '070 123 45 67')
+        swish_number = Settings.get_value('swish_number', '012 345 67 89')
         concert_name = Settings.get_value('concert_name', 'Klasskonsert 24C')
         
         # Generate payment link
@@ -37,7 +37,7 @@ def send_booking_confirmation(booking):
             <li><strong>E-post:</strong> {booking.email}</li>
             <li><strong>Telefon:</strong> {booking.phone}</li>
             <li><strong>Tid:</strong> {booking.show.start_time}-{booking.show.end_time}</li>
-            <li><strong>Ordinarie biljetter:</strong> {booking.adult_tickets} st</li>
+            <li><strong>Ordinariebiljetter:</strong> {booking.adult_tickets} st</li>
             <li><strong>Studentbiljetter:</strong> {booking.student_tickets} st</li>
             <li><strong>Totalt att betala:</strong> {booking.total_amount} kr</li>
         </ul>
@@ -70,7 +70,7 @@ def send_admin_notification(booking):
     """Send notification to admin about new booking"""
     try:
         admin_email = _get_admin_email()
-        admin_email = Settings.get_value('admin_email', 'oliver.ahlstrand@icloud.com')
+        admin_email = Settings.get_value('admin_email', 'admin@example.com')
         
         msg = Message(
             subject=f'Ny biljettreservation - {booking.booking_reference}',
@@ -90,7 +90,7 @@ def send_admin_notification(booking):
             <li><strong>E-post:</strong> {booking.email}</li>
             <li><strong>Telefon:</strong> {booking.phone}</li>
             <li><strong>Tid:</strong> {booking.show.start_time}-{booking.show.end_time}</li>
-            <li><strong>Ordinarie biljetter:</strong> {booking.adult_tickets} st</li>
+            <li><strong>Ordinariebiljetter:</strong> {booking.adult_tickets} st</li>
             <li><strong>Studentbiljetter:</strong> {booking.student_tickets} st</li>
             <li><strong>Totalt att betala:</strong> {booking.total_amount} kr</li>
             <li><strong>Status:</strong> {'Betalning bekräftad av köpare' if booking.buyer_confirmed_payment else 'Väntar på betalning'}</li>
@@ -251,7 +251,7 @@ def send_payment_confirmed(booking):
                 <!-- Professional Footer -->
                 <div style="background: #34495e; color: white; padding: 25px; text-align: center;">
                     <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 300;">
-                        Questions? Contact us at {Settings.get_value('contact_email', 'oliver.ahlstrand@icloud.com')}
+                        Questions? Contact us at {Settings.get_value('contact_email', 'admin@example.com')}
                     </p>
                     <p style="margin: 0; font-size: 12px; opacity: 0.8; font-weight: 300;">
                         This is an automated message. Please do not reply to this email.
@@ -332,7 +332,7 @@ def send_ticket_resend(booking):
         <ul>
             <li><strong>Namn:</strong> {booking.full_name}</li>
             <li><strong>Tid:</strong> {booking.show.start_time}-{booking.show.end_time}</li>
-            <li><strong>Ordinarie biljetter:</strong> {booking.adult_tickets} st</li>
+            <li><strong>Ordinariebiljetter:</strong> {booking.adult_tickets} st</li>
             <li><strong>Studentbiljetter:</strong> {booking.student_tickets} st</li>
         </ul>
         

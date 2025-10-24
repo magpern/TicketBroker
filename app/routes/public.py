@@ -80,7 +80,7 @@ def class_photo():
 def index():
     """Landing page with class photo and welcome message"""
     # Get settings
-    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Donald Duch')
+    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Event Organizer')
     adult_price = Settings.get_value('adult_price', '200')
     student_price = Settings.get_value('student_price', '100')
     concert_date = Settings.get_value('concert_date', '29/1 2026')
@@ -122,7 +122,7 @@ def booking():
         shows = [show1, show2]
     
     # Get settings
-    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand')
+    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Event Organizer')
     concert_date = Settings.get_value('concert_date', '29/1 2026')
     
     return render_template('booking.html', step=1, shows=shows, 
@@ -147,7 +147,7 @@ def booking_tickets():
         # Get dynamic prices and labels from settings
         adult_price = int(Settings.get_value('adult_price', '200'))
         student_price = int(Settings.get_value('student_price', '100'))
-        adult_label = Settings.get_value('adult_ticket_label', 'Ordinarie biljett')
+        adult_label = Settings.get_value('adult_ticket_label', 'Ordinariebiljett')
         student_label = Settings.get_value('student_ticket_label', 'Studentbiljett')
         
         return render_template('booking.html', step=2, show=show, 
@@ -155,7 +155,7 @@ def booking_tickets():
                              student_price=student_price,
                              adult_label=adult_label,
                              student_label=student_label,
-                             swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
+                             swish_recipient_name=Settings.get_value('swish_recipient_name', 'Event Organizer'),
                              concert_date=Settings.get_value('concert_date', '29/1 2026'))
     
     # GET request - redirect to step 1 if no show selected
@@ -167,7 +167,7 @@ def booking_tickets():
     # Get dynamic prices and labels from settings
     adult_price = int(Settings.get_value('adult_price', '200'))
     student_price = int(Settings.get_value('student_price', '100'))
-    adult_label = Settings.get_value('adult_ticket_label', 'Ordinarie biljett')
+    adult_label = Settings.get_value('adult_ticket_label', 'Ordinariebiljett')
     student_label = Settings.get_value('student_ticket_label', 'Studentbiljett')
     
     return render_template('booking.html', step=2, show=show, 
@@ -175,7 +175,7 @@ def booking_tickets():
                          student_price=student_price,
                          adult_label=adult_label,
                          student_label=student_label,
-                         swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
+                         swish_recipient_name=Settings.get_value('swish_recipient_name', 'Event Organizer'),
                          concert_date=Settings.get_value('concert_date', '29/1 2026'))
 
 @public_bp.route('/booking/contact', methods=['GET', 'POST'])
@@ -199,7 +199,7 @@ def booking_contact():
         # Calculate total amount
         adult_price = int(Settings.get_value('adult_price', '200'))
         student_price = int(Settings.get_value('student_price', '100'))
-        adult_label = Settings.get_value('adult_ticket_label', 'Ordinarie biljett')
+        adult_label = Settings.get_value('adult_ticket_label', 'Ordinariebiljett')
         student_label = Settings.get_value('student_ticket_label', 'Studentbiljett')
         total_amount = (adult_tickets * adult_price) + (student_tickets * student_price)
         session['total_amount'] = total_amount
@@ -210,7 +210,7 @@ def booking_contact():
                              adult_label=adult_label,
                              student_label=student_label,
                              total_amount=total_amount,
-                             swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
+                             swish_recipient_name=Settings.get_value('swish_recipient_name', 'Event Organizer'),
                              concert_date=Settings.get_value('concert_date', '29/1 2026'))
     
     # GET request - redirect to step 2 if no tickets selected
@@ -221,7 +221,7 @@ def booking_contact():
                          adult_tickets=session['adult_tickets'],
                          student_tickets=session['student_tickets'],
                          total_amount=session['total_amount'],
-                         swish_recipient_name=Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand'),
+                         swish_recipient_name=Settings.get_value('swish_recipient_name', 'Event Organizer'),
                          concert_date=Settings.get_value('concert_date', '29/1 2026'))
 
 @public_bp.route('/booking/confirm', methods=['POST'])
@@ -299,7 +299,7 @@ def booking_confirm():
         from app.utils.email import send_booking_confirmation
         send_booking_confirmation(booking)
         
-        flash('Tack! Du har reserverat dina biljetter. Glöm inte att swisha summan till 070 123 45 67 för att bekräfta din plats.', 'success')
+        flash('Tack! Du har reserverat dina biljetter. Glöm inte att swisha summan till 012 345 67 89 för att bekräfta din plats.', 'success')
         return redirect(url_for('public.booking_success', booking_reference=booking.booking_reference, email=booking.email))
         
     except Exception as e:
@@ -557,8 +557,8 @@ def booking_success(booking_reference, email):
     booking = Booking.query.filter_by(booking_reference=booking_reference, email=email.lower()).first_or_404()
     
     # Get Swish settings
-    swish_number = Settings.get_value('swish_number', '070 123 45 67')
-    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Oliver Ahlstrand')
+    swish_number = Settings.get_value('swish_number', '012 345 67 89')
+    swish_recipient_name = Settings.get_value('swish_recipient_name', 'Event Organizer')
     
     # Detect if user is on mobile device
     user_agent = request.headers.get('User-Agent', '')
@@ -594,7 +594,7 @@ def initiate_payment(booking_reference, email):
     log_payment_initiated(booking)
     
     # Generate Swish URL
-    swish_number = Settings.get_value('swish_number', '070 123 45 67')
+    swish_number = Settings.get_value('swish_number', '012 345 67 89')
     swish_url = generate_swish_url(swish_number, booking.total_amount, booking.booking_reference)
     
     # Detect if user is on mobile device

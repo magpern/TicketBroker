@@ -23,8 +23,8 @@ class Config:
     MAX_TICKETS_PER_BOOKING = 4
     ADULT_TICKET_PRICE = 200
     STUDENT_TICKET_PRICE = 100
-    SWISH_NUMBER = '070 123 45 67'
-    SWISH_RECIPIENT_NAME = 'Donald Duck'
-    CONTACT_EMAIL = 'Donald.Duck@icloud.com'
+    SWISH_NUMBER = '012 345 67 89'
+    SWISH_RECIPIENT_NAME = 'Event Organizer'
+    CONTACT_EMAIL = 'admin@example.com'
     CONCERT_DATE = '29/1 2026'
     CONCERT_VENUE = 'Aulan på Rytmus Stockholm'

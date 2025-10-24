@@ -44,7 +44,7 @@ def create_app():
     @app.context_processor
     def inject_global_vars():
         from app.models import Settings
-        contact_email = Settings.get_value('contact_email', 'oliver.ahlstrand@icloud.com')
+        contact_email = Settings.get_value('contact_email', 'admin@example.com')
         return dict(contact_email=contact_email)
     
     # Note: Database tables are now managed by Flask-Migrate

@@ -16,7 +16,7 @@
             <div class="settings-group">
                 <h3>Priser</h3>
                 <div class="form-group">
-                    <label for="adult_price">Ordinarie biljett (kr)</label>
+                    <label for="adult_price">Ordinariebiljett (kr)</label>
                     <input type="number" id="adult_price" name="adult_price" value="{{ settings.get('adult_price', '200') }}" required>
                 </div>
                 
@@ -29,8 +29,8 @@
             <div class="settings-group">
                 <h3>Biljettyper</h3>
                 <div class="form-group">
-                    <label for="adult_ticket_label">Ordinarie biljett - etikett</label>
-                    <input type="text" id="adult_ticket_label" name="adult_ticket_label" value="{{ settings.get('adult_ticket_label', 'Ordinarie biljett') }}" required>
+                    <label for="adult_ticket_label">Ordinariebiljett - etikett</label>
+                    <input type="text" id="adult_ticket_label" name="adult_ticket_label" value="{{ settings.get('adult_ticket_label', 'Ordinariebiljett') }}" required>
                 </div>
                 
                 <div class="form-group">
@@ -43,22 +43,22 @@
                 <h3>Kontaktinformation</h3>
                 <div class="form-group">
                     <label for="swish_number">Swish-nummer</label>
-                    <input type="text" id="swish_number" name="swish_number" value="{{ settings.get('swish_number', '070 123 45 67') }}" required>
+                    <input type="text" id="swish_number" name="swish_number" value="{{ settings.get('swish_number', '012 345 67 89') }}" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="swish_recipient_name">Swish-mottagarens namn</label>
-                    <input type="text" id="swish_recipient_name" name="swish_recipient_name" value="{{ settings.get('swish_recipient_name', 'Oliver Ahlstrand') }}" required>
+                    <input type="text" id="swish_recipient_name" name="swish_recipient_name" value="{{ settings.get('swish_recipient_name', 'Event Organizer') }}" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="contact_email">Kontakt e-post (visas i sidfot)</label>
-                    <input type="email" id="contact_email" name="contact_email" value="{{ settings.get('contact_email', 'oliver.ahlstrand@icloud.com') }}" required>
+                    <input type="email" id="contact_email" name="contact_email" value="{{ settings.get('contact_email', 'admin@example.com') }}" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="admin_email">Administratörs e-post</label>
-                    <input type="email" id="admin_email" name="admin_email" value="{{ settings.get('admin_email', 'oliver.ahlstrand@icloud.com') }}" required>
+                    <input type="email" id="admin_email" name="admin_email" value="{{ settings.get('admin_email', 'admin@example.com') }}" required>
                 </div>
             </div>
             

@@ -244,7 +244,7 @@ Access the admin panel to configure:
 4. Choose ticket quantities (max 4 total)
 5. Fill in contact information
 6. Complete booking
-7. Pay via Swish to 070 123 45 67
+7. Pay via Swish to 012 345 67 89
 8. Confirm payment on the website
 
 ### For Administrators
@@ -418,7 +418,7 @@ This project is created for educational purposes. Please ensure compliance with 
 
 ## Support
 
-For technical support, contact: oliver.ahlstrand@icloud.com
+For technical support, contact: admin@example.com
 
 ## Acknowledgments
 
