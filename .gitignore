@@ -172,3 +172,32 @@ app/static/images/*.png
 app/static/images/*.jpeg
 !app/static/images/README.md
 !app/static/images/class-photo.jpg
+
+# Java / Maven
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.idea/
+
+# React / Node
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/.vite/
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Large files / archives
+*.tar
+*.tar.gz
+*.zip
+*.rar
