@@ -1,5 +1,8 @@
-# Use Python 3.11 slim image
-FROM python:3.11-slim
+# Use Python 3.11 slim image with build arguments for platform
+# This supports both amd64 (Raspberry Pi 4/5) and arm64 (Raspberry Pi 4/5)
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+FROM --platform=$BUILDPLATFORM python:3.11-slim AS build
 
 # Set working directory
 WORKDIR /app

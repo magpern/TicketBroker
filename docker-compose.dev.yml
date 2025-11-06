@@ -1,0 +1,29 @@
+services:
+  ticketbroker2:
+    image: ticketbroker:dev
+    container_name: ticketbroker2
+    ports:
+      - "5001:5000"  # Different port to avoid conflict
+    volumes:
+      - ticketbroker2_data:/data
+      - ticketbroker2_logs:/logs
+      - ./app/static/images:/app/app/static/images
+    environment:
+      - FLASK_ENV=development
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - DATABASE_URL=sqlite:////data/ticketbroker.db
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-your-gmail-app-password}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-klasskonsert26}
+    restart: unless-stopped
+    user: "1000:1000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ticketbroker2_data:
+  ticketbroker2_logs:
+
